@@ -64,7 +64,7 @@ class Footer extends StatelessWidget {
               // Divider
               Container(
                 height: 1.0,
-                color: Colors.white.withOpacity(0.1),
+                color: Colors.white.withOpacity(0.2),
               ),
 
               const SizedBox(height: 30.0),
@@ -77,7 +77,7 @@ class Footer extends StatelessWidget {
                   Text(
                     "© 2025 Mohamed Isaam M J. All rights reserved.",
                     style: GoogleFonts.inter(
-                      color: kCaptionColor,
+                      color: Colors.white.withOpacity(0.8), // Fixed: Made visible
                       fontSize: 14.0,
                     ),
                   ),
@@ -105,7 +105,7 @@ class Footer extends StatelessWidget {
                       const SizedBox(width: 12.0),
                       _buildSocialIcon(
                         Icons.code,
-                        const Color(0xFF333333),
+                        Colors.white, // Fixed: Changed from light color to white
                         'https://github.com/yourusername',
                       ),
                     ],
@@ -132,14 +132,14 @@ class Footer extends StatelessWidget {
             Container(
               padding: const EdgeInsets.all(8.0),
               decoration: BoxDecoration(
-                color: Colors.blue.withOpacity(0.1),
+                color: Colors.white.withOpacity(0.1), // Improved contrast
                 borderRadius: BorderRadius.circular(8.0),
               ),
               child: Image.asset(
                 item.iconPath,
                 width: 16.0,
                 height: 16.0,
-                color: Colors.blue,
+                color: Colors.white, // Fixed: Made icon white for visibility
               ),
             ),
             const SizedBox(width: 12.0),
@@ -151,7 +151,7 @@ class Footer extends StatelessWidget {
                   style: GoogleFonts.inter(
                     fontSize: 12.0,
                     fontWeight: FontWeight.w600,
-                    color: Colors.white,
+                    color: Colors.white, // Already correct
                   ),
                 ),
                 const SizedBox(height: 4.0),
@@ -159,9 +159,20 @@ class Footer extends StatelessWidget {
                   item.text1,
                   style: GoogleFonts.inter(
                     fontSize: 13.0,
-                    color: kCaptionColor,
+                    color: Colors.white.withOpacity(0.8), // Fixed: Made more visible
                   ),
                 ),
+                // Added the missing text2 display
+                if (item.text2.isNotEmpty) ...[
+                  const SizedBox(height: 2.0),
+                  Text(
+                    item.text2,
+                    style: GoogleFonts.inter(
+                      fontSize: 12.0,
+                      color: Colors.white.withOpacity(0.6),
+                    ),
+                  ),
+                ],
               ],
             ),
           ],
@@ -178,8 +189,12 @@ class Footer extends StatelessWidget {
         child: Container(
           padding: const EdgeInsets.all(8.0),
           decoration: BoxDecoration(
-            color: color.withOpacity(0.1),
+            color: color.withOpacity(0.15), // Slightly increased opacity
             borderRadius: BorderRadius.circular(6.0),
+            border: Border.all(
+              color: color.withOpacity(0.3), // Added subtle border
+              width: 1.0,
+            ),
           ),
           child: Icon(
             icon,

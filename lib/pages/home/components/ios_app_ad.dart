@@ -5,23 +5,47 @@ import 'package:google_fonts/google_fonts.dart';
 import '../../../utils/constants.dart';
 import '../../../utils/screen_helper.dart';
 
-class AppCarousel extends StatefulWidget {
+class IOSAddApp extends StatefulWidget {
   @override
-  _AppCarouselState createState() => _AppCarouselState();
+  _IOSAddAppState createState() => _IOSAddAppState();
 }
 
-class _AppCarouselState extends State<AppCarousel>
+class _IOSAddAppState extends State<IOSAddApp>
     with TickerProviderStateMixin {
   final PageController _pageController = PageController();
   int currentPage = 0;
   late AnimationController _indicatorController;
   late AnimationController _fadeController;
 
+  // 📱 CONSISTENT RESPONSIVE BREAKPOINTS (matching Home widget)
+  static const double mobileBreakpoint = 768.0;
+  static const double tabletBreakpoint = 1024.0;
+  static const double desktopBreakpoint = 1200.0;
+
   final List<Widget> apps = [
     SkyFeedAppAd(),
     WeatherProAppAd(),
     NewsHubAppAd(),
   ];
+
+  // 📏 RESPONSIVE UTILITIES
+  bool _isMobile(BuildContext context) => MediaQuery.of(context).size.width < mobileBreakpoint;
+  bool _isTablet(BuildContext context) => MediaQuery.of(context).size.width >= mobileBreakpoint && MediaQuery.of(context).size.width < tabletBreakpoint;
+  bool _isDesktop(BuildContext context) => MediaQuery.of(context).size.width >= tabletBreakpoint;
+
+  double _getResponsivePadding(BuildContext context) {
+    final screenWidth = MediaQuery.of(context).size.width;
+    if (screenWidth >= desktopBreakpoint) return 80.0;
+    if (screenWidth >= tabletBreakpoint) return 60.0;
+    if (screenWidth >= mobileBreakpoint) return 40.0;
+    return 24.0;
+  }
+
+  // Calculate safe navigation button positioning
+  double _getNavButtonOffset(BuildContext context) {
+    if (_isMobile(context)) return 0; // No nav buttons on mobile
+    return _getResponsivePadding(context) + (_isDesktop(context) ? 80 : 60);
+  }
 
   @override
   void initState() {
@@ -84,7 +108,17 @@ class _AppCarouselState extends State<AppCarousel>
 
   @override
   Widget build(BuildContext context) {
+    final screenHeight = MediaQuery.of(context).size.height;
+    final safeAreaTop = MediaQuery.of(context).padding.top;
+    final safeAreaBottom = MediaQuery.of(context).padding.bottom;
+
+    // Calculate available height for content
+    final availableHeight = screenHeight - safeAreaTop - safeAreaBottom;
+    final indicatorHeight = _isMobile(context) ? 40.0 : 60.0;
+    final contentHeight = availableHeight - indicatorHeight;
+
     return Container(
+      height: screenHeight,
       decoration: BoxDecoration(
         gradient: LinearGradient(
           begin: Alignment.topLeft,
@@ -96,306 +130,410 @@ class _AppCarouselState extends State<AppCarousel>
           ],
         ),
       ),
-      child: Stack(
-        children: [
-          // Background pattern
-          Positioned.fill(
-            child: CustomPaint(
-              painter: BackgroundPatternPainter(),
+      child: SafeArea(
+        child: Stack(
+          children: [
+            // Background pattern
+            Positioned.fill(
+              child: CustomPaint(
+                painter: BackgroundPatternPainter(),
+              ),
             ),
-          ),
 
-          // Main carousel
-          FadeTransition(
-            opacity: _fadeController,
-            child: PageView.builder(
-              controller: _pageController,
-              itemCount: apps.length,
-              onPageChanged: (index) {
-                setState(() {
-                  currentPage = index;
-                });
-              },
-              itemBuilder: (context, index) {
-                return apps[index];
-              },
+            // Main carousel with proper height constraints
+            Positioned(
+              top: 0,
+              left: _getNavButtonOffset(context),
+              right: _getNavButtonOffset(context),
+              height: contentHeight,
+              child: FadeTransition(
+                opacity: _fadeController,
+                child: PageView.builder(
+                  controller: _pageController,
+                  itemCount: apps.length,
+                  onPageChanged: (index) {
+                    setState(() {
+                      currentPage = index;
+                    });
+                  },
+                  itemBuilder: (context, index) {
+                    return Container(
+                      height: contentHeight,
+                      child: apps[index],
+                    );
+                  },
+                ),
+              ),
             ),
-          ),
 
-          // Page indicators
-          Positioned(
-            bottom: 40,
-            left: 0,
-            right: 0,
-            child: Row(
-              mainAxisAlignment: MainAxisAlignment.center,
-              children: List.generate(
-                apps.length,
-                    (index) => AnimatedContainer(
-                  duration: Duration(milliseconds: 300),
-                  margin: EdgeInsets.symmetric(horizontal: 4),
-                  width: currentPage == index ? 32 : 8,
-                  height: 8,
-                  decoration: BoxDecoration(
-                    color: currentPage == index
-                        ? kPrimaryColor
-                        : kPrimaryColor.withOpacity(0.3),
-                    borderRadius: BorderRadius.circular(4),
+            // Page indicators - fixed positioning at bottom
+            Positioned(
+              bottom: safeAreaBottom + (_isMobile(context) ? 16 : 24),
+              left: 0,
+              right: 0,
+              height: 24,
+              child: Row(
+                mainAxisAlignment: MainAxisAlignment.center,
+                children: List.generate(
+                  apps.length,
+                      (index) => AnimatedContainer(
+                    duration: Duration(milliseconds: 300),
+                    margin: EdgeInsets.symmetric(horizontal: 4),
+                    width: currentPage == index ? (_isMobile(context) ? 24 : 32) : 8,
+                    height: 8,
+                    decoration: BoxDecoration(
+                      color: currentPage == index
+                          ? kPrimaryColor
+                          : kPrimaryColor.withOpacity(0.3),
+                      borderRadius: BorderRadius.circular(4),
+                    ),
                   ),
                 ),
               ),
             ),
-          ),
 
-          // Navigation arrows for desktop
-          if (MediaQuery.of(context).size.width > 720) ...[
-            Positioned(
-              left: 20,
-              top: 0,
-              bottom: 0,
-              child: Center(
-                child: _buildNavButton(
-                  Icons.arrow_back_ios,
-                      () => _goToPage((currentPage - 1 + apps.length) % apps.length),
+            // Navigation arrows for desktop and tablet only - properly positioned
+            if (!_isMobile(context)) ...[
+              Positioned(
+                left: _getResponsivePadding(context),
+                top: safeAreaTop + 20,
+                bottom: safeAreaBottom + indicatorHeight + 20,
+                width: _isDesktop(context) ? 60 : 50,
+                child: Center(
+                  child: _buildNavButton(
+                    Icons.arrow_back_ios,
+                        () => _goToPage((currentPage - 1 + apps.length) % apps.length),
+                  ),
                 ),
               ),
-            ),
-            Positioned(
-              right: 20,
-              top: 0,
-              bottom: 0,
-              child: Center(
-                child: _buildNavButton(
-                  Icons.arrow_forward_ios,
-                      () => _nextPage(),
+              Positioned(
+                right: _getResponsivePadding(context),
+                top: safeAreaTop + 20,
+                bottom: safeAreaBottom + indicatorHeight + 20,
+                width: _isDesktop(context) ? 60 : 50,
+                child: Center(
+                  child: _buildNavButton(
+                    Icons.arrow_forward_ios,
+                        () => _nextPage(),
+                  ),
                 ),
               ),
-            ),
+            ],
           ],
-        ],
+        ),
       ),
     );
   }
 
   Widget _buildNavButton(IconData icon, VoidCallback onPressed) {
+    final buttonSize = _isDesktop(context) ? 50.0 : 40.0;
+    final iconSize = _isDesktop(context) ? 20.0 : 16.0;
+
     return Container(
-      width: 50,
-      height: 50,
+      width: buttonSize,
+      height: buttonSize,
       decoration: BoxDecoration(
-        color: Colors.white.withOpacity(0.9),
-        borderRadius: BorderRadius.circular(25),
+        color: Colors.white.withOpacity(0.95),
+        borderRadius: BorderRadius.circular(buttonSize / 2),
+        border: Border.all(
+          color: kPrimaryColor.withOpacity(0.2),
+          width: 1,
+        ),
         boxShadow: [
           BoxShadow(
-            color: Colors.black.withOpacity(0.1),
-            blurRadius: 10,
-            offset: Offset(0, 2),
+            color: Colors.black.withOpacity(0.08),
+            blurRadius: 12,
+            offset: Offset(0, 4),
           ),
         ],
       ),
-      child: IconButton(
-        icon: Icon(icon, color: kPrimaryColor, size: 20),
-        onPressed: onPressed,
+      child: Material(
+        color: Colors.transparent,
+        child: InkWell(
+          borderRadius: BorderRadius.circular(buttonSize / 2),
+          onTap: onPressed,
+          child: Icon(
+            icon,
+            color: kPrimaryColor,
+            size: iconSize,
+          ),
+        ),
       ),
     );
   }
 }
 
 class SkyFeedAppAd extends StatelessWidget {
+  // 📱 CONSISTENT RESPONSIVE BREAKPOINTS
+  static const double mobileBreakpoint = 768.0;
+  static const double tabletBreakpoint = 1024.0;
+  static const double desktopBreakpoint = 1200.0;
+
+  // 📏 RESPONSIVE UTILITIES
+  bool _isMobile(BuildContext context) => MediaQuery.of(context).size.width < mobileBreakpoint;
+  bool _isTablet(BuildContext context) => MediaQuery.of(context).size.width >= mobileBreakpoint && MediaQuery.of(context).size.width < tabletBreakpoint;
+  bool _isDesktop(BuildContext context) => MediaQuery.of(context).size.width >= tabletBreakpoint;
+
+  double _getResponsivePadding(BuildContext context) {
+    final screenWidth = MediaQuery.of(context).size.width;
+    if (screenWidth >= desktopBreakpoint) return 60.0;
+    if (screenWidth >= tabletBreakpoint) return 40.0;
+    if (screenWidth >= mobileBreakpoint) return 30.0;
+    return 20.0;
+  }
+
+  double _getResponsiveFontSize(BuildContext context, {
+    required double mobile,
+    required double tablet,
+    required double desktop,
+  }) {
+    if (_isDesktop(context)) return desktop;
+    if (_isTablet(context)) return tablet;
+    return mobile;
+  }
+
   @override
   Widget build(BuildContext context) {
-    return Container(
-      child: ScreenHelper(
-        desktop: _buildUi(kDesktopMaxWidth, context),
-        tablet: _buildUi(kTabletMaxWidth, context),
-        mobile: _buildUi(getMobileMaxWidth(context), context),
-      ),
+    return LayoutBuilder(
+      builder: (context, constraints) {
+        return SingleChildScrollView(
+          child: ConstrainedBox(
+            constraints: BoxConstraints(
+              minHeight: constraints.maxHeight,
+            ),
+            child: Container(
+              width: double.infinity,
+              padding: EdgeInsets.symmetric(
+                horizontal: _getResponsivePadding(context),
+                vertical: _isMobile(context) ? 20 : 40,
+              ),
+              child: _buildUi(context, constraints),
+            ),
+          ),
+        );
+      },
     );
   }
 
-  Widget _buildUi(double width, BuildContext context) {
-    return Center(
-      child: Container(
-        width: width,
-        padding: EdgeInsets.symmetric(horizontal: 20, vertical: 40),
-        child: LayoutBuilder(
-          builder: (context, constraints) {
-            bool isDesktop = constraints.maxWidth > 720;
-            return Flex(
-              direction: isDesktop ? Axis.horizontal : Axis.vertical,
-              children: [
-                Expanded(
-                  flex: isDesktop ? 1 : 0,
-                  child: Container(
-                    constraints: BoxConstraints(maxWidth: isDesktop ? double.infinity : 400),
-                    child: Stack(
-                      children: [
-                        // Glow effect
-                        Container(
+  Widget _buildUi(BuildContext context, BoxConstraints constraints) {
+    bool isWideLayout = constraints.maxWidth > 800 && !_isMobile(context);
+
+    return IntrinsicHeight(
+      child: Flex(
+        direction: isWideLayout ? Axis.horizontal : Axis.vertical,
+        crossAxisAlignment: CrossAxisAlignment.center,
+        mainAxisAlignment: MainAxisAlignment.center,
+        children: [
+          // Image section
+          Flexible(
+            flex: isWideLayout ? 1 : 0,
+            child: Container(
+              constraints: BoxConstraints(
+                maxWidth: isWideLayout ? double.infinity :
+                _isMobile(context) ? 280 : 400,
+                maxHeight: _isMobile(context) ? 300 : 400,
+              ),
+              child: AspectRatio(
+                aspectRatio: 1.0,
+                child: Stack(
+                  children: [
+                    // Glow effect
+                    Container(
+                      decoration: BoxDecoration(
+                        borderRadius: BorderRadius.circular(_isMobile(context) ? 15 : 20),
+                        boxShadow: [
+                          BoxShadow(
+                            color: kPrimaryColor.withOpacity(0.3),
+                            blurRadius: _isMobile(context) ? 20 : 30,
+                            spreadRadius: _isMobile(context) ? 3 : 5,
+                          ),
+                        ],
+                      ),
+                      child: ClipRRect(
+                        borderRadius: BorderRadius.circular(_isMobile(context) ? 15 : 20),
+                        child: Image.asset(
+                          "assets/skyfeed.png",
+                          fit: BoxFit.cover,
+                        ),
+                      ),
+                    ),
+                    // Floating elements - responsive visibility
+                    if (constraints.maxWidth > 350)
+                      Positioned(
+                        top: -5,
+                        right: -5,
+                        child: Container(
+                          width: _isMobile(context) ? 40 : 60,
+                          height: _isMobile(context) ? 40 : 60,
                           decoration: BoxDecoration(
-                            borderRadius: BorderRadius.circular(20),
-                            boxShadow: [
-                              BoxShadow(
-                                color: kPrimaryColor.withOpacity(0.3),
-                                blurRadius: 30,
-                                spreadRadius: 5,
-                              ),
-                            ],
+                            color: Colors.orange.withOpacity(0.8),
+                            borderRadius: BorderRadius.circular(_isMobile(context) ? 20 : 30),
                           ),
-                          child: ClipRRect(
-                            borderRadius: BorderRadius.circular(20),
-                            child: Image.asset(
-                              "assets/skyfeed.png",
-                              fit: BoxFit.cover,
-                            ),
+                          child: Icon(
+                            Icons.wb_sunny,
+                            color: Colors.white,
+                            size: _isMobile(context) ? 16 : 24,
                           ),
                         ),
-                        // Floating elements
-                        Positioned(
-                          top: -10,
-                          right: -10,
-                          child: Container(
-                            width: 60,
-                            height: 60,
-                            decoration: BoxDecoration(
-                              color: Colors.orange.withOpacity(0.8),
-                              borderRadius: BorderRadius.circular(30),
-                            ),
-                            child: Icon(Icons.wb_sunny, color: Colors.white, size: 24),
-                          ),
-                        ),
-                      ],
+                      ),
+                  ],
+                ),
+              ),
+            ),
+          ),
+
+          SizedBox(
+            width: isWideLayout ? (_isMobile(context) ? 30 : 50) : 0,
+            height: isWideLayout ? 0 : (_isMobile(context) ? 20 : 30),
+          ),
+
+          // Content section
+          Flexible(
+            flex: isWideLayout ? 1 : 0,
+            child: Container(
+              constraints: BoxConstraints(
+                maxWidth: isWideLayout ? double.infinity : 600,
+              ),
+              child: Column(
+                mainAxisAlignment: MainAxisAlignment.center,
+                crossAxisAlignment: isWideLayout ? CrossAxisAlignment.start : CrossAxisAlignment.center,
+                mainAxisSize: MainAxisSize.min,
+                children: [
+                  // App badge
+                  Container(
+                    padding: EdgeInsets.symmetric(
+                      horizontal: _isMobile(context) ? 8 : 12,
+                      vertical: _isMobile(context) ? 4 : 6,
+                    ),
+                    decoration: BoxDecoration(
+                      color: kPrimaryColor.withOpacity(0.1),
+                      borderRadius: BorderRadius.circular(_isMobile(context) ? 15 : 20),
+                      border: Border.all(color: kPrimaryColor.withOpacity(0.3)),
+                    ),
+                    child: Text(
+                      "FEATURED APP",
+                      style: GoogleFonts.poppins(
+                        color: kPrimaryColor,
+                        fontWeight: FontWeight.w600,
+                        fontSize: _getResponsiveFontSize(context,
+                            mobile: 10, tablet: 11, desktop: 12),
+                        letterSpacing: 1.2,
+                      ),
                     ),
                   ),
-                ),
-                SizedBox(
-                  width: isDesktop ? 50 : 0,
-                  height: isDesktop ? 0 : 30,
-                ),
-                Expanded(
-                  flex: isDesktop ? 1 : 0,
-                  child: Column(
-                    mainAxisAlignment: MainAxisAlignment.center,
-                    crossAxisAlignment: CrossAxisAlignment.start,
+                  SizedBox(height: _isMobile(context) ? 15 : 20),
+
+                  // App name with animation
+                  ShaderMask(
+                    shaderCallback: (bounds) => LinearGradient(
+                      colors: [kPrimaryColor, Colors.blue[400]!],
+                    ).createShader(bounds),
+                    child: Text(
+                      "SkyFeed",
+                      style: GoogleFonts.poppins(
+                        color: Colors.white,
+                        fontWeight: FontWeight.w800,
+                        fontSize: _getResponsiveFontSize(context,
+                            mobile: 28, tablet: 36, desktop: 48),
+                        height: 1.1,
+                      ),
+                      textAlign: isWideLayout ? TextAlign.left : TextAlign.center,
+                    ),
+                  ),
+
+                  SizedBox(height: _isMobile(context) ? 10 : 15),
+                  Text(
+                    "PERSONALIZED NEWS &\nWEATHER FORECASTS",
+                    style: GoogleFonts.poppins(
+                      color: Colors.grey[800],
+                      fontWeight: FontWeight.w700,
+                      height: 1.2,
+                      fontSize: _getResponsiveFontSize(context,
+                          mobile: 16, tablet: 20, desktop: 24),
+                      letterSpacing: 0.5,
+                    ),
+                    textAlign: isWideLayout ? TextAlign.left : TextAlign.center,
+                  ),
+
+                  SizedBox(height: _isMobile(context) ? 15 : 20),
+                  Container(
+                    padding: EdgeInsets.all(_isMobile(context) ? 15 : 20),
+                    decoration: BoxDecoration(
+                      color: Colors.white.withOpacity(0.8),
+                      borderRadius: BorderRadius.circular(_isMobile(context) ? 12 : 15),
+                      border: Border.all(color: Colors.grey[200]!),
+                    ),
+                    child: Text(
+                      "Experience the perfect blend of real-time weather data and curated news content. Our AI-powered platform delivers personalized insights that matter to you, when you need them most.",
+                      style: GoogleFonts.inter(
+                        color: Colors.grey[700],
+                        height: 1.6,
+                        fontSize: _getResponsiveFontSize(context,
+                            mobile: 13, tablet: 15, desktop: 16),
+                      ),
+                      textAlign: isWideLayout ? TextAlign.left : TextAlign.center,
+                    ),
+                  ),
+
+                  SizedBox(height: _isMobile(context) ? 20 : 30),
+
+                  // Rating and stats
+                  Wrap(
+                    spacing: _isMobile(context) ? 8 : 15,
+                    runSpacing: _isMobile(context) ? 8 : 10,
+                    alignment: isWideLayout ? WrapAlignment.start : WrapAlignment.center,
                     children: [
-                      // App badge
-                      Container(
-                        padding: EdgeInsets.symmetric(horizontal: 12, vertical: 6),
-                        decoration: BoxDecoration(
-                          color: kPrimaryColor.withOpacity(0.1),
-                          borderRadius: BorderRadius.circular(20),
-                          border: Border.all(color: kPrimaryColor.withOpacity(0.3)),
-                        ),
-                        child: Text(
-                          "FEATURED APP",
-                          style: GoogleFonts.poppins(
-                            color: kPrimaryColor,
-                            fontWeight: FontWeight.w600,
-                            fontSize: 12,
-                            letterSpacing: 1.2,
-                          ),
-                        ),
-                      ),
-                      SizedBox(height: 20),
-
-                      // App name with animation
-                      ShaderMask(
-                        shaderCallback: (bounds) => LinearGradient(
-                          colors: [kPrimaryColor, Colors.blue[400]!],
-                        ).createShader(bounds),
-                        child: Text(
-                          "SkyFeed",
-                          style: GoogleFonts.poppins(
-                            color: Colors.white,
-                            fontWeight: FontWeight.w800,
-                            fontSize: 48,
-                            height: 1.1,
-                          ),
-                        ),
-                      ),
-
-                      SizedBox(height: 15),
-                      Text(
-                        "PERSONALIZED NEWS &\nWEATHER FORECASTS",
-                        style: GoogleFonts.poppins(
-                          color: Colors.grey[800],
-                          fontWeight: FontWeight.w700,
-                          height: 1.2,
-                          fontSize: 24,
-                          letterSpacing: 0.5,
-                        ),
-                      ),
-
-                      SizedBox(height: 20),
-                      Container(
-                        padding: EdgeInsets.all(20),
-                        decoration: BoxDecoration(
-                          color: Colors.white.withOpacity(0.8),
-                          borderRadius: BorderRadius.circular(15),
-                          border: Border.all(color: Colors.grey[200]!),
-                        ),
-                        child: Text(
-                          "Experience the perfect blend of real-time weather data and curated news content. Our AI-powered platform delivers personalized insights that matter to you, when you need them most.",
-                          style: GoogleFonts.inter(
-                            color: Colors.grey[700],
-                            height: 1.6,
-                            fontSize: 16,
-                          ),
-                        ),
-                      ),
-
-                      SizedBox(height: 30),
-
-                      // Rating and stats
-                      Row(
-                        children: [
-                          _buildStatCard("4.8★", "Rating"),
-                          SizedBox(width: 15),
-                          _buildStatCard("50K+", "Downloads"),
-                          SizedBox(width: 15),
-                          _buildStatCard("Free", "Price"),
-                        ],
-                      ),
-
-                      SizedBox(height: 30),
-
-                      // Action buttons
-                      Row(
-                        children: [
-                          _buildButton(
-                            "EXPLORE APP",
-                                () {},
-                            primary: true,
-                            icon: Icons.launch,
-                          ),
-                          SizedBox(width: 15),
-                          _buildButton(
-                            "NEXT",
-                                () {
-                              final state = context.findAncestorStateOfType<_AppCarouselState>();
-                              state?._nextPage();
-                            },
-                            primary: false,
-                            icon: Icons.arrow_forward,
-                          ),
-                        ],
-                      )
+                      _buildStatCard("4.8★", "Rating", context),
+                      _buildStatCard("50K+", "Downloads", context),
+                      _buildStatCard("Free", "Price", context),
                     ],
                   ),
-                )
-              ],
-            );
-          },
-        ),
+
+                  SizedBox(height: _isMobile(context) ? 20 : 30),
+
+                  // Action buttons
+                  Wrap(
+                    spacing: _isMobile(context) ? 10 : 15,
+                    runSpacing: 10,
+                    alignment: isWideLayout ? WrapAlignment.start : WrapAlignment.center,
+                    children: [
+                      _buildButton(
+                        context,
+                        "EXPLORE APP",
+                            () {},
+                        primary: true,
+                        icon: Icons.launch,
+                      ),
+                      _buildButton(
+                        context,
+                        "NEXT",
+                            () {
+                          final state = context.findAncestorStateOfType<_IOSAddAppState>();
+                          state?._nextPage();
+                        },
+                        primary: false,
+                        icon: Icons.arrow_forward,
+                      ),
+                    ],
+                  )
+                ],
+              ),
+            ),
+          )
+        ],
       ),
     );
   }
 
-  Widget _buildStatCard(String value, String label) {
+  Widget _buildStatCard(String value, String label, BuildContext context) {
     return Container(
-      padding: EdgeInsets.symmetric(horizontal: 12, vertical: 8),
+      padding: EdgeInsets.symmetric(
+        horizontal: _isMobile(context) ? 8 : 12,
+        vertical: _isMobile(context) ? 6 : 8,
+      ),
       decoration: BoxDecoration(
         color: Colors.white,
-        borderRadius: BorderRadius.circular(10),
+        borderRadius: BorderRadius.circular(_isMobile(context) ? 8 : 10),
         boxShadow: [
           BoxShadow(
             color: Colors.black.withOpacity(0.05),
@@ -410,14 +548,16 @@ class SkyFeedAppAd extends StatelessWidget {
             value,
             style: GoogleFonts.poppins(
               fontWeight: FontWeight.w700,
-              fontSize: 14,
+              fontSize: _getResponsiveFontSize(context,
+                  mobile: 12, tablet: 13, desktop: 14),
               color: kPrimaryColor,
             ),
           ),
           Text(
             label,
             style: GoogleFonts.inter(
-              fontSize: 11,
+              fontSize: _getResponsiveFontSize(context,
+                  mobile: 9, tablet: 10, desktop: 11),
               color: Colors.grey[600],
             ),
           ),
@@ -426,10 +566,13 @@ class SkyFeedAppAd extends StatelessWidget {
     );
   }
 
-  Widget _buildButton(String label, VoidCallback onPressed,
+  Widget _buildButton(BuildContext context, String label, VoidCallback onPressed,
       {required bool primary, IconData? icon}) {
     return Container(
-      height: 50,
+      height: _isMobile(context) ? 40 : 50,
+      constraints: BoxConstraints(
+        minWidth: _isMobile(context) ? 100 : 120,
+      ),
       decoration: BoxDecoration(
         gradient: primary
             ? LinearGradient(
@@ -437,7 +580,7 @@ class SkyFeedAppAd extends StatelessWidget {
         )
             : null,
         color: primary ? null : Colors.white,
-        borderRadius: BorderRadius.circular(25),
+        borderRadius: BorderRadius.circular(_isMobile(context) ? 20 : 25),
         border: primary ? null : Border.all(color: kPrimaryColor),
         boxShadow: [
           BoxShadow(
@@ -452,28 +595,35 @@ class SkyFeedAppAd extends StatelessWidget {
       child: Material(
         color: Colors.transparent,
         child: InkWell(
-          borderRadius: BorderRadius.circular(25),
+          borderRadius: BorderRadius.circular(_isMobile(context) ? 20 : 25),
           onTap: onPressed,
           child: Padding(
-            padding: EdgeInsets.symmetric(horizontal: 24),
+            padding: EdgeInsets.symmetric(
+              horizontal: _isMobile(context) ? 16 : 24,
+            ),
             child: Row(
               mainAxisSize: MainAxisSize.min,
+              mainAxisAlignment: MainAxisAlignment.center,
               children: [
                 if (icon != null) ...[
                   Icon(
                     icon,
                     color: primary ? Colors.white : kPrimaryColor,
-                    size: 18,
+                    size: _isMobile(context) ? 14 : 18,
                   ),
-                  SizedBox(width: 8),
+                  SizedBox(width: _isMobile(context) ? 4 : 8),
                 ],
-                Text(
-                  label,
-                  style: GoogleFonts.poppins(
-                    color: primary ? Colors.white : kPrimaryColor,
-                    fontSize: 14,
-                    fontWeight: FontWeight.w600,
-                    letterSpacing: 0.5,
+                Flexible(
+                  child: Text(
+                    label,
+                    style: GoogleFonts.poppins(
+                      color: primary ? Colors.white : kPrimaryColor,
+                      fontSize: _getResponsiveFontSize(context,
+                          mobile: 12, tablet: 13, desktop: 14),
+                      fontWeight: FontWeight.w600,
+                      letterSpacing: 0.5,
+                    ),
+                    textAlign: TextAlign.center,
                   ),
                 ),
               ],
@@ -486,125 +636,186 @@ class SkyFeedAppAd extends StatelessWidget {
 }
 
 class WeatherProAppAd extends StatelessWidget {
-  @override
-  Widget build(BuildContext context) {
-    return Container(
-      child: ScreenHelper(
-        desktop: _buildUi(kDesktopMaxWidth, context),
-        tablet: _buildUi(kTabletMaxWidth, context),
-        mobile: _buildUi(getMobileMaxWidth(context), context),
-      ),
-    );
+  // 📱 CONSISTENT RESPONSIVE BREAKPOINTS
+  static const double mobileBreakpoint = 768.0;
+  static const double tabletBreakpoint = 1024.0;
+  static const double desktopBreakpoint = 1200.0;
+
+  // 📏 RESPONSIVE UTILITIES
+  bool _isMobile(BuildContext context) => MediaQuery.of(context).size.width < mobileBreakpoint;
+  bool _isTablet(BuildContext context) => MediaQuery.of(context).size.width >= mobileBreakpoint && MediaQuery.of(context).size.width < tabletBreakpoint;
+  bool _isDesktop(BuildContext context) => MediaQuery.of(context).size.width >= tabletBreakpoint;
+
+  double _getResponsivePadding(BuildContext context) {
+    final screenWidth = MediaQuery.of(context).size.width;
+    if (screenWidth >= desktopBreakpoint) return 60.0;
+    if (screenWidth >= tabletBreakpoint) return 40.0;
+    if (screenWidth >= mobileBreakpoint) return 30.0;
+    return 20.0;
   }
 
-  Widget _buildUi(double width, BuildContext context) {
-    return Center(
-      child: Container(
-        width: width,
-        padding: EdgeInsets.symmetric(horizontal: 20, vertical: 40),
-        child: Column(
-          mainAxisAlignment: MainAxisAlignment.center,
-          children: [
-            // App icon with glow
-            Container(
-              width: 120,
-              height: 120,
-              decoration: BoxDecoration(
-                gradient: LinearGradient(
-                  colors: [Colors.blue[400]!, Colors.purple[400]!],
-                ),
-                borderRadius: BorderRadius.circular(30),
-                boxShadow: [
-                  BoxShadow(
-                    color: Colors.blue.withOpacity(0.4),
-                    blurRadius: 20,
-                    spreadRadius: 5,
+  double _getResponsiveFontSize(BuildContext context, {
+    required double mobile,
+    required double tablet,
+    required double desktop,
+  }) {
+    if (_isDesktop(context)) return desktop;
+    if (_isTablet(context)) return tablet;
+    return mobile;
+  }
+
+  @override
+  Widget build(BuildContext context) {
+    return LayoutBuilder(
+      builder: (context, constraints) {
+        return SingleChildScrollView(
+          child: ConstrainedBox(
+            constraints: BoxConstraints(
+              minHeight: constraints.maxHeight,
+            ),
+            child: Container(
+              width: double.infinity,
+              padding: EdgeInsets.symmetric(
+                horizontal: _getResponsivePadding(context),
+                vertical: _isMobile(context) ? 20 : 40,
+              ),
+              child: Column(
+                mainAxisAlignment: MainAxisAlignment.center,
+                children: [
+                  // App icon with glow
+                  Container(
+                    width: _isMobile(context) ? 80 : _isTablet(context) ? 100 : 120,
+                    height: _isMobile(context) ? 80 : _isTablet(context) ? 100 : 120,
+                    decoration: BoxDecoration(
+                      gradient: LinearGradient(
+                        colors: [Colors.blue[400]!, Colors.purple[400]!],
+                      ),
+                      borderRadius: BorderRadius.circular(_isMobile(context) ? 20 : 30),
+                      boxShadow: [
+                        BoxShadow(
+                          color: Colors.blue.withOpacity(0.4),
+                          blurRadius: _isMobile(context) ? 15 : 20,
+                          spreadRadius: _isMobile(context) ? 3 : 5,
+                        ),
+                      ],
+                    ),
+                    child: Icon(
+                      Icons.cloud,
+                      color: Colors.white,
+                      size: _isMobile(context) ? 40 : _isTablet(context) ? 50 : 60,
+                    ),
+                  ),
+
+                  SizedBox(height: _isMobile(context) ? 20 : 30),
+
+                  Text(
+                    "WeatherPro",
+                    style: GoogleFonts.poppins(
+                      fontSize: _getResponsiveFontSize(context,
+                          mobile: 28, tablet: 35, desktop: 42),
+                      fontWeight: FontWeight.w800,
+                      color: Colors.grey[800],
+                    ),
+                    textAlign: TextAlign.center,
+                  ),
+
+                  SizedBox(height: _isMobile(context) ? 8 : 10),
+                  Container(
+                    constraints: BoxConstraints(
+                      maxWidth: _isMobile(context) ? double.infinity : 400,
+                    ),
+                    child: Text(
+                      "Advanced weather tracking with AI predictions",
+                      style: GoogleFonts.inter(
+                        fontSize: _getResponsiveFontSize(context,
+                            mobile: 14, tablet: 16, desktop: 18),
+                        color: Colors.grey[600],
+                      ),
+                      textAlign: TextAlign.center,
+                    ),
+                  ),
+
+                  SizedBox(height: _isMobile(context) ? 30 : 40),
+
+                  // Features grid
+                  Container(
+                    constraints: BoxConstraints(maxWidth: 600),
+                    child: Wrap(
+                      spacing: _isMobile(context) ? 10 : 20,
+                      runSpacing: _isMobile(context) ? 10 : 15,
+                      alignment: WrapAlignment.center,
+                      children: [
+                        _buildFeatureChip("Real-time Updates", Icons.update, context),
+                        _buildFeatureChip("AI Predictions", Icons.psychology, context),
+                        _buildFeatureChip("Multi-location", Icons.location_on, context),
+                        _buildFeatureChip("Weather Alerts", Icons.notifications, context),
+                      ],
+                    ),
+                  ),
+
+                  SizedBox(height: _isMobile(context) ? 30 : 40),
+
+                  ElevatedButton.icon(
+                    onPressed: () {
+                      final state = context.findAncestorStateOfType<_IOSAddAppState>();
+                      state?._nextPage();
+                    },
+                    icon: Icon(Icons.arrow_forward,
+                        size: _isMobile(context) ? 16 : 18),
+                    label: Text(
+                      "DISCOVER MORE",
+                      style: TextStyle(
+                        fontSize: _getResponsiveFontSize(context,
+                            mobile: 12, tablet: 14, desktop: 16),
+                        fontWeight: FontWeight.w600,
+                      ),
+                    ),
+                    style: ElevatedButton.styleFrom(
+                      backgroundColor: Colors.blue[400],
+                      foregroundColor: Colors.white,
+                      padding: EdgeInsets.symmetric(
+                        horizontal: _isMobile(context) ? 20 : 30,
+                        vertical: _isMobile(context) ? 12 : 15,
+                      ),
+                      shape: RoundedRectangleBorder(
+                        borderRadius: BorderRadius.circular(_isMobile(context) ? 20 : 25),
+                      ),
+                    ),
                   ),
                 ],
               ),
-              child: Icon(
-                Icons.cloud,
-                color: Colors.white,
-                size: 60,
-              ),
             ),
-
-            SizedBox(height: 30),
-
-            Text(
-              "WeatherPro",
-              style: GoogleFonts.poppins(
-                fontSize: 42,
-                fontWeight: FontWeight.w800,
-                color: Colors.grey[800],
-              ),
-            ),
-
-            SizedBox(height: 10),
-            Text(
-              "Advanced weather tracking with AI predictions",
-              style: GoogleFonts.inter(
-                fontSize: 18,
-                color: Colors.grey[600],
-              ),
-              textAlign: TextAlign.center,
-            ),
-
-            SizedBox(height: 40),
-
-            // Features grid
-            Wrap(
-              spacing: 20,
-              runSpacing: 15,
-              children: [
-                _buildFeatureChip("Real-time Updates", Icons.update),
-                _buildFeatureChip("AI Predictions", Icons.psychology),
-                _buildFeatureChip("Multi-location", Icons.location_on),
-                _buildFeatureChip("Weather Alerts", Icons.notifications),
-              ],
-            ),
-
-            SizedBox(height: 40),
-
-            ElevatedButton.icon(
-              onPressed: () {
-                final state = context.findAncestorStateOfType<_AppCarouselState>();
-                state?._nextPage();
-              },
-              icon: Icon(Icons.arrow_forward),
-              label: Text("DISCOVER MORE"),
-              style: ElevatedButton.styleFrom(
-                backgroundColor: Colors.blue[400],
-                foregroundColor: Colors.white,
-                padding: EdgeInsets.symmetric(horizontal: 30, vertical: 15),
-                shape: RoundedRectangleBorder(
-                  borderRadius: BorderRadius.circular(25),
-                ),
-              ),
-            ),
-          ],
-        ),
-      ),
+          ),
+        );
+      },
     );
   }
 
-  Widget _buildFeatureChip(String label, IconData icon) {
+  Widget _buildFeatureChip(String label, IconData icon, BuildContext context) {
     return Container(
-      padding: EdgeInsets.symmetric(horizontal: 16, vertical: 8),
+      padding: EdgeInsets.symmetric(
+        horizontal: _isMobile(context) ? 12 : 16,
+        vertical: _isMobile(context) ? 6 : 8,
+      ),
       decoration: BoxDecoration(
         color: Colors.white,
-        borderRadius: BorderRadius.circular(20),
+        borderRadius: BorderRadius.circular(_isMobile(context) ? 15 : 20),
         border: Border.all(color: Colors.blue[200]!),
       ),
       child: Row(
         mainAxisSize: MainAxisSize.min,
         children: [
-          Icon(icon, size: 16, color: Colors.blue[400]),
-          SizedBox(width: 6),
+          Icon(
+            icon,
+            size: _isMobile(context) ? 14 : 16,
+            color: Colors.blue[400],
+          ),
+          SizedBox(width: _isMobile(context) ? 4 : 6),
           Text(
             label,
             style: GoogleFonts.inter(
-              fontSize: 12,
+              fontSize: _getResponsiveFontSize(context,
+                  mobile: 11, tablet: 12, desktop: 12),
               color: Colors.grey[700],
             ),
           ),
@@ -615,139 +826,208 @@ class WeatherProAppAd extends StatelessWidget {
 }
 
 class NewsHubAppAd extends StatelessWidget {
-  @override
-  Widget build(BuildContext context) {
-    return Container(
-      child: ScreenHelper(
-        desktop: _buildUi(kDesktopMaxWidth, context),
-        tablet: _buildUi(kTabletMaxWidth, context),
-        mobile: _buildUi(getMobileMaxWidth(context), context),
-      ),
-    );
+  // 📱 CONSISTENT RESPONSIVE BREAKPOINTS
+  static const double mobileBreakpoint = 768.0;
+  static const double tabletBreakpoint = 1024.0;
+  static const double desktopBreakpoint = 1200.0;
+
+  // 📏 RESPONSIVE UTILITIES
+  bool _isMobile(BuildContext context) => MediaQuery.of(context).size.width < mobileBreakpoint;
+  bool _isTablet(BuildContext context) => MediaQuery.of(context).size.width >= mobileBreakpoint && MediaQuery.of(context).size.width < tabletBreakpoint;
+  bool _isDesktop(BuildContext context) => MediaQuery.of(context).size.width >= tabletBreakpoint;
+
+  double _getResponsivePadding(BuildContext context) {
+    final screenWidth = MediaQuery.of(context).size.width;
+    if (screenWidth >= desktopBreakpoint) return 60.0;
+    if (screenWidth >= tabletBreakpoint) return 40.0;
+    if (screenWidth >= mobileBreakpoint) return 30.0;
+    return 20.0;
   }
 
-  Widget _buildUi(double width, BuildContext context) {
-    return Center(
-      child: Container(
-        width: width,
-        padding: EdgeInsets.symmetric(horizontal: 20, vertical: 40),
-        child: Column(
-          mainAxisAlignment: MainAxisAlignment.center,
-          children: [
-            // Animated news icon
-            Container(
-              width: 120,
-              height: 120,
-              decoration: BoxDecoration(
-                gradient: LinearGradient(
-                  colors: [Colors.red[400]!, Colors.orange[400]!],
-                ),
-                borderRadius: BorderRadius.circular(30),
-                boxShadow: [
-                  BoxShadow(
-                    color: Colors.red.withOpacity(0.4),
-                    blurRadius: 20,
-                    spreadRadius: 5,
+  double _getResponsiveFontSize(BuildContext context, {
+    required double mobile,
+    required double tablet,
+    required double desktop,
+  }) {
+    if (_isDesktop(context)) return desktop;
+    if (_isTablet(context)) return tablet;
+    return mobile;
+  }
+
+  @override
+  Widget build(BuildContext context) {
+    return LayoutBuilder(
+      builder: (context, constraints) {
+        return SingleChildScrollView(
+          child: ConstrainedBox(
+            constraints: BoxConstraints(
+              minHeight: constraints.maxHeight,
+            ),
+            child: Container(
+              width: double.infinity,
+              padding: EdgeInsets.symmetric(
+                horizontal: _getResponsivePadding(context),
+                vertical: _isMobile(context) ? 20 : 40,
+              ),
+              child: Column(
+                mainAxisAlignment: MainAxisAlignment.center,
+                children: [
+                  // Animated news icon
+                  Container(
+                    width: _isMobile(context) ? 80 : _isTablet(context) ? 100 : 120,
+                    height: _isMobile(context) ? 80 : _isTablet(context) ? 100 : 120,
+                    decoration: BoxDecoration(
+                      gradient: LinearGradient(
+                        colors: [Colors.red[400]!, Colors.orange[400]!],
+                      ),
+                      borderRadius: BorderRadius.circular(_isMobile(context) ? 20 : 30),
+                      boxShadow: [
+                        BoxShadow(
+                          color: Colors.red.withOpacity(0.4),
+                          blurRadius: _isMobile(context) ? 15 : 20,
+                          spreadRadius: _isMobile(context) ? 3 : 5,
+                        ),
+                      ],
+                    ),
+                    child: Icon(
+                      Icons.newspaper,
+                      color: Colors.white,
+                      size: _isMobile(context) ? 40 : _isTablet(context) ? 50 : 60,
+                    ),
+                  ),
+
+                  SizedBox(height: _isMobile(context) ? 20 : 30),
+
+                  Text(
+                    "NewsHub",
+                    style: GoogleFonts.poppins(
+                      fontSize: _getResponsiveFontSize(context,
+                          mobile: 28, tablet: 35, desktop: 42),
+                      fontWeight: FontWeight.w800,
+                      color: Colors.grey[800],
+                    ),
+                    textAlign: TextAlign.center,
+                  ),
+
+                  SizedBox(height: _isMobile(context) ? 8 : 10),
+                  Container(
+                    constraints: BoxConstraints(
+                      maxWidth: _isMobile(context) ? double.infinity : 400,
+                    ),
+                    child: Text(
+                      "Stay informed with personalized news curation",
+                      style: GoogleFonts.inter(
+                        fontSize: _getResponsiveFontSize(context,
+                            mobile: 14, tablet: 16, desktop: 18),
+                        color: Colors.grey[600],
+                      ),
+                      textAlign: TextAlign.center,
+                    ),
+                  ),
+
+                  SizedBox(height: _isMobile(context) ? 30 : 40),
+
+                  // News categories
+                  Container(
+                    constraints: BoxConstraints(maxWidth: 600),
+                    child: Wrap(
+                      spacing: _isMobile(context) ? 8 : 15,
+                      runSpacing: _isMobile(context) ? 8 : 10,
+                      alignment: WrapAlignment.center,
+                      children: [
+                        _buildCategoryTag("Technology", context),
+                        _buildCategoryTag("Business", context),
+                        _buildCategoryTag("Sports", context),
+                        _buildCategoryTag("Health", context),
+                        _buildCategoryTag("Science", context),
+                      ],
+                    ),
+                  ),
+
+                  SizedBox(height: _isMobile(context) ? 30 : 40),
+
+                  Wrap(
+                    spacing: _isMobile(context) ? 10 : 15,
+                    runSpacing: 10,
+                    alignment: WrapAlignment.center,
+                    children: [
+                      ElevatedButton.icon(
+                        onPressed: () {},
+                        icon: Icon(Icons.launch,
+                            size: _isMobile(context) ? 16 : 18),
+                        label: Text(
+                          "EXPLORE",
+                          style: TextStyle(
+                            fontSize: _getResponsiveFontSize(context,
+                                mobile: 12, tablet: 14, desktop: 16),
+                            fontWeight: FontWeight.w600,
+                          ),
+                        ),
+                        style: ElevatedButton.styleFrom(
+                          backgroundColor: Colors.red[400],
+                          foregroundColor: Colors.white,
+                          padding: EdgeInsets.symmetric(
+                            horizontal: _isMobile(context) ? 20 : 25,
+                            vertical: _isMobile(context) ? 10 : 12,
+                          ),
+                          shape: RoundedRectangleBorder(
+                            borderRadius: BorderRadius.circular(_isMobile(context) ? 20 : 25),
+                          ),
+                        ),
+                      ),
+                      OutlinedButton.icon(
+                        onPressed: () {
+                          final state = context.findAncestorStateOfType<_IOSAddAppState>();
+                          state?._goToPage(0); // Go back to first app
+                        },
+                        icon: Icon(Icons.refresh,
+                            size: _isMobile(context) ? 16 : 18),
+                        label: Text(
+                          "RESTART",
+                          style: TextStyle(
+                            fontSize: _getResponsiveFontSize(context,
+                                mobile: 12, tablet: 14, desktop: 16),
+                            fontWeight: FontWeight.w600,
+                          ),
+                        ),
+                        style: OutlinedButton.styleFrom(
+                          foregroundColor: Colors.red[400],
+                          padding: EdgeInsets.symmetric(
+                            horizontal: _isMobile(context) ? 20 : 25,
+                            vertical: _isMobile(context) ? 10 : 12,
+                          ),
+                          shape: RoundedRectangleBorder(
+                            borderRadius: BorderRadius.circular(_isMobile(context) ? 20 : 25),
+                          ),
+                        ),
+                      ),
+                    ],
                   ),
                 ],
               ),
-              child: Icon(
-                Icons.newspaper,
-                color: Colors.white,
-                size: 60,
-              ),
             ),
-
-            SizedBox(height: 30),
-
-            Text(
-              "NewsHub",
-              style: GoogleFonts.poppins(
-                fontSize: 42,
-                fontWeight: FontWeight.w800,
-                color: Colors.grey[800],
-              ),
-            ),
-
-            SizedBox(height: 10),
-            Text(
-              "Stay informed with personalized news curation",
-              style: GoogleFonts.inter(
-                fontSize: 18,
-                color: Colors.grey[600],
-              ),
-              textAlign: TextAlign.center,
-            ),
-
-            SizedBox(height: 40),
-
-            // News categories
-            Wrap(
-              spacing: 15,
-              runSpacing: 10,
-              children: [
-                _buildCategoryTag("Technology"),
-                _buildCategoryTag("Business"),
-                _buildCategoryTag("Sports"),
-                _buildCategoryTag("Health"),
-                _buildCategoryTag("Science"),
-              ],
-            ),
-
-            SizedBox(height: 40),
-
-            Row(
-              mainAxisAlignment: MainAxisAlignment.center,
-              children: [
-                ElevatedButton.icon(
-                  onPressed: () {},
-                  icon: Icon(Icons.launch),
-                  label: Text("EXPLORE"),
-                  style: ElevatedButton.styleFrom(
-                    backgroundColor: Colors.red[400],
-                    foregroundColor: Colors.white,
-                    padding: EdgeInsets.symmetric(horizontal: 25, vertical: 12),
-                    shape: RoundedRectangleBorder(
-                      borderRadius: BorderRadius.circular(25),
-                    ),
-                  ),
-                ),
-                SizedBox(width: 15),
-                OutlinedButton.icon(
-                  onPressed: () {
-                    final state = context.findAncestorStateOfType<_AppCarouselState>();
-                    state?._goToPage(0); // Go back to first app
-                  },
-                  icon: Icon(Icons.refresh),
-                  label: Text("RESTART"),
-                  style: OutlinedButton.styleFrom(
-                    foregroundColor: Colors.red[400],
-                    padding: EdgeInsets.symmetric(horizontal: 25, vertical: 12),
-                    shape: RoundedRectangleBorder(
-                      borderRadius: BorderRadius.circular(25),
-                    ),
-                  ),
-                ),
-              ],
-            ),
-          ],
-        ),
-      ),
+          ),
+        );
+      },
     );
   }
 
-  Widget _buildCategoryTag(String category) {
+  Widget _buildCategoryTag(String category, BuildContext context) {
     return Container(
-      padding: EdgeInsets.symmetric(horizontal: 12, vertical: 6),
+      padding: EdgeInsets.symmetric(
+        horizontal: _isMobile(context) ? 10 : 12,
+        vertical: _isMobile(context) ? 4 : 6,
+      ),
       decoration: BoxDecoration(
         color: Colors.red[50],
-        borderRadius: BorderRadius.circular(15),
+        borderRadius: BorderRadius.circular(_isMobile(context) ? 12 : 15),
         border: Border.all(color: Colors.red[200]!),
       ),
       child: Text(
         category,
         style: GoogleFonts.inter(
-          fontSize: 12,
+          fontSize: _getResponsiveFontSize(context,
+              mobile: 10, tablet: 11, desktop: 12),
           color: Colors.red[600],
           fontWeight: FontWeight.w500,
         ),
@@ -765,7 +1045,8 @@ class BackgroundPatternPainter extends CustomPainter {
       ..strokeWidth = 1
       ..style = PaintingStyle.stroke;
 
-    const spacing = 50.0;
+    // Responsive spacing based on screen size
+    final spacing = size.width < 768 ? 30.0 : size.width < 1024 ? 40.0 : 50.0;
 
     // Draw grid pattern
     for (double x = 0; x < size.width; x += spacing) {
