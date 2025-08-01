@@ -2,7 +2,9 @@ import 'package:flutter/material.dart';
 import 'package:flutter/rendering.dart';
 import 'package:google_fonts/google_fonts.dart';
 import 'package:responsive_framework/responsive_framework.dart';
+import 'package:url_launcher/url_launcher.dart';
 
+import '../../../utils/constants.dart';
 import '../../../models/footer_item.dart';
 import '../../../utils/constants.dart';
 import '../../../utils/screen_helper.dart';
@@ -11,36 +13,33 @@ final List<FooterItem> footerItems = [
   FooterItem(
     iconPath: "assets/mappin.png",
     title: "ADDRESS",
-    text1: "999 Carter Street",
-    text2: "Sailor Springs, IL 64234",
+    text1: "Tamilnadu, India",
+    text2: "Nagercoil, Tamil Nadu",
   ),
   FooterItem(
     iconPath: "assets/phone.png",
     title: "PHONE",
-    text1: "+1 618-689-9604",
-    text2: "+1 781-689-9632",
+    text1: "+91 9488894451",
+    text2: "Available 9 AM - 6 PM",
   ),
   FooterItem(
     iconPath: "assets/email.png",
     title: "EMAIL",
-    text1: "hello@example.com",
-    text2: "info@flutterpanda.com",
+    text1: "isaam.mj@gmail.com",
+    text2: "Business inquiries",
   ),
-  FooterItem(
-    iconPath: "assets/whatsapp.png",
-    title: "WHATSAPP",
-    text1: "+234 901-134-0095",
-    text2: "+234 901-134-0095",
-  )
 ];
 
 class Footer extends StatelessWidget {
   @override
   Widget build(BuildContext context) {
-    return ScreenHelper(
-      desktop: _buildUi(kDesktopMaxWidth, context),
-      tablet: _buildUi(kTabletMaxWidth, context),
-      mobile: _buildUi(getMobileMaxWidth(context), context),
+    return Container(
+      color: kPrimaryColor,
+      child: ScreenHelper(
+        desktop: _buildUi(kDesktopMaxWidth, context),
+        tablet: _buildUi(kTabletMaxWidth, context),
+        mobile: _buildUi(getMobileMaxWidth(context), context),
+      ),
     );
   }
 
@@ -48,115 +47,167 @@ class Footer extends StatelessWidget {
     return Center(
       child: MaxWidthBox(
         maxWidth: width,
-        child: LayoutBuilder(
-          builder: (context, constraints) {
-            return Column(
-              crossAxisAlignment: CrossAxisAlignment.start,
-              children: [
-                Padding(
-                  padding: const EdgeInsets.symmetric(vertical: 50.0),
-                  child: Wrap(
-                    spacing: 20.0,
-                    runSpacing: 20.0,
-                    children: footerItems.map((footerItem) {
-                      return SizedBox(
-                        height: 120.0,
-                        width: ScreenHelper.isMobile(context)
-                            ? constraints.maxWidth / 2.0 - 20.0
-                            : constraints.maxWidth / 4.0 - 20.0,
-                        child: Column(
-                          crossAxisAlignment: CrossAxisAlignment.start,
-                          children: [
-                            Row(
-                              children: [
-                                Image.asset(
-                                  footerItem.iconPath,
-                                  width: 25.0,
-                                ),
-                                const SizedBox(width: 15.0),
-                                Text(
-                                  footerItem.title,
-                                  style: GoogleFonts.oswald(
-                                    fontSize: 18.0,
-                                    fontWeight: FontWeight.w700,
-                                    color: Colors.white,
-                                  ),
-                                ),
-                              ],
-                            ),
-                            const SizedBox(height: 15.0),
-                            RichText(
-                              text: TextSpan(
-                                children: [
-                                  TextSpan(
-                                    text: "${footerItem.text1}\n",
-                                    style: const TextStyle(
-                                      color: kCaptionColor,
-                                      height: 1.8,
-                                    ),
-                                  ),
-                                  TextSpan(
-                                    text: footerItem.text2,
-                                    style: const TextStyle(
-                                      color: kCaptionColor,
-                                    ),
-                                  ),
-                                ],
-                              ),
-                            )
-                          ],
-                        ),
-                      );
-                    }).toList(),
-                  ),
-                ),
-                const SizedBox(height: 20.0),
-                Flex(
-                  direction: ScreenHelper.isMobile(context)
-                      ? Axis.vertical
-                      : Axis.horizontal,
-                  mainAxisAlignment: ScreenHelper.isMobile(context)
-                      ? MainAxisAlignment.center
-                      : MainAxisAlignment.spaceBetween,
-                  children: [
-                    const Padding(
-                      padding: EdgeInsets.only(bottom: 8.0),
-                      child: Text(
-                        "Copyright (c) 2021 Michele Harrington. All rights Reserved",
-                        style: TextStyle(color: kCaptionColor),
-                      ),
+        child: Padding(
+          padding: const EdgeInsets.symmetric(vertical: 40.0, horizontal: 20.0),
+          child: Column(
+            children: [
+              // Contact Info
+              Wrap(
+                alignment: WrapAlignment.center,
+                spacing: ScreenHelper.isMobile(context) ? 20.0 : 60.0,
+                runSpacing: 30.0,
+                children: footerItems.map((item) => _buildContactItem(item)).toList(),
+              ),
+
+              const SizedBox(height: 40.0),
+
+              // Divider
+              Container(
+                height: 1.0,
+                color: Colors.white.withOpacity(0.1),
+              ),
+
+              const SizedBox(height: 30.0),
+
+              // Bottom Row
+              Flex(
+                direction: ScreenHelper.isMobile(context) ? Axis.vertical : Axis.horizontal,
+                mainAxisAlignment: MainAxisAlignment.spaceBetween,
+                children: [
+                  Text(
+                    "© 2025 Mohamed Isaam M J. All rights reserved.",
+                    style: GoogleFonts.inter(
+                      color: kCaptionColor,
+                      fontSize: 14.0,
                     ),
-                    Row(
-                      mainAxisAlignment: MainAxisAlignment.center,
-                      children: [
-                        _buildFooterLink("Privacy Policy", () {}),
-                        const Padding(
-                          padding: EdgeInsets.symmetric(horizontal: 8.0),
-                          child: Text("|", style: TextStyle(color: kCaptionColor)),
-                        ),
-                        _buildFooterLink("Terms & Conditions", () {}),
-                      ],
-                    )
-                  ],
-                )
-              ],
-            );
-          },
+                  ),
+                  if (ScreenHelper.isMobile(context)) const SizedBox(height: 16.0),
+                  Row(
+                    mainAxisSize: MainAxisSize.min,
+                    children: [
+                      _buildSocialIcon(
+                        Icons.facebook,
+                        const Color(0xFF1877F2),
+                        'https://www.facebook.com/yourprofile',
+                      ),
+                      const SizedBox(width: 12.0),
+                      _buildSocialIcon(
+                        Icons.send,
+                        const Color(0xFF0088CC),
+                        'https://t.me/yourusername',
+                      ),
+                      const SizedBox(width: 12.0),
+                      _buildSocialIcon(
+                        Icons.camera_alt,
+                        const Color(0xFFE4405F),
+                        'https://www.instagram.com/yourprofile',
+                      ),
+                      const SizedBox(width: 12.0),
+                      _buildSocialIcon(
+                        Icons.code,
+                        const Color(0xFF333333),
+                        'https://github.com/yourusername',
+                      ),
+                    ],
+                  ),
+                ],
+              ),
+            ],
+          ),
         ),
       ),
     );
   }
 
-  Widget _buildFooterLink(String text, VoidCallback onTap) {
-    return GestureDetector(
-      onTap: onTap,
-      child: MouseRegion(
-        cursor: SystemMouseCursors.click,
-        child: Text(
-          text,
-          style: const TextStyle(color: kCaptionColor),
+  Widget _buildContactItem(FooterItem item) {
+    return MouseRegion(
+      cursor: item.title == "EMAIL" || item.title == "PHONE"
+          ? SystemMouseCursors.click
+          : SystemMouseCursors.basic,
+      child: GestureDetector(
+        onTap: () => _handleContactTap(item),
+        child: Row(
+          mainAxisSize: MainAxisSize.min,
+          children: [
+            Container(
+              padding: const EdgeInsets.all(8.0),
+              decoration: BoxDecoration(
+                color: Colors.blue.withOpacity(0.1),
+                borderRadius: BorderRadius.circular(8.0),
+              ),
+              child: Image.asset(
+                item.iconPath,
+                width: 16.0,
+                height: 16.0,
+                color: Colors.blue,
+              ),
+            ),
+            const SizedBox(width: 12.0),
+            Column(
+              crossAxisAlignment: CrossAxisAlignment.start,
+              children: [
+                Text(
+                  item.title,
+                  style: GoogleFonts.inter(
+                    fontSize: 12.0,
+                    fontWeight: FontWeight.w600,
+                    color: Colors.white,
+                  ),
+                ),
+                const SizedBox(height: 4.0),
+                Text(
+                  item.text1,
+                  style: GoogleFonts.inter(
+                    fontSize: 13.0,
+                    color: kCaptionColor,
+                  ),
+                ),
+              ],
+            ),
+          ],
         ),
       ),
     );
+  }
+
+  Widget _buildSocialIcon(IconData icon, Color color, String url) {
+    return MouseRegion(
+      cursor: SystemMouseCursors.click,
+      child: GestureDetector(
+        onTap: () => _launchURL(url),
+        child: Container(
+          padding: const EdgeInsets.all(8.0),
+          decoration: BoxDecoration(
+            color: color.withOpacity(0.1),
+            borderRadius: BorderRadius.circular(6.0),
+          ),
+          child: Icon(
+            icon,
+            color: color,
+            size: 18.0,
+          ),
+        ),
+      ),
+    );
+  }
+
+  Future<void> _launchURL(String url) async {
+    final Uri uri = Uri.parse(url);
+    if (!await launchUrl(uri, mode: LaunchMode.externalApplication)) {
+      debugPrint('Could not launch $url');
+    }
+  }
+
+  void _handleContactTap(FooterItem item) {
+    switch (item.title) {
+      case "EMAIL":
+        _launchURL('mailto:${item.text1}');
+        break;
+      case "PHONE":
+        _launchURL('tel:${item.text1}');
+        break;
+      default:
+        break;
+    }
   }
 }

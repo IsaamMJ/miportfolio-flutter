@@ -1,12 +1,12 @@
 import 'package:flutter/material.dart';
 
-class Education {
+class InternshipModel {
   final String description;
   final String linkName;
   final String link;
   final String period;
 
-  Education({
+  InternshipModel({
     required this.description,
     required this.linkName,
     required this.link,
