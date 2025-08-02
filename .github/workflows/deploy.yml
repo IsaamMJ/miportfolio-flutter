@@ -17,7 +17,6 @@ jobs:
         uses: subosito/flutter-action@v2
         with:
           flutter-version: '3.32.4'
-          channel: 'stable'
 
       - name: Enable Web
         run: flutter config --enable-web
@@ -30,6 +29,15 @@ jobs:
 
       - name: Install Vercel CLI
         run: npm install --global vercel
+
+      - name: Inject Vercel Routing Config
+        run: |
+          echo '{
+            "version": 2,
+            "routes": [
+              { "src": "/(.*)", "dest": "/index.html" }
+            ]
+          }' > build/web/vercel.json
 
       - name: Deploy to Vercel
         env:
