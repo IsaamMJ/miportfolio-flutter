@@ -1,6 +1,8 @@
 import 'package:flutter/material.dart';
 import 'package:google_fonts/google_fonts.dart';
 import 'package:url_launcher/url_launcher.dart';
+import '../../../data/models/website_data.dart';
+import '../../../data/repositories/portfolio_repository.dart';
 import '../../../utils/constants.dart';
 import '../../../utils/screen_helper.dart';
 
@@ -17,48 +19,17 @@ class _WebsiteCarouselState extends State<WebsiteCarousel>
   late AnimationController _fadeController;
   late AnimationController _floatingController;
 
-  final List<WebsiteData> websites = [
-    WebsiteData(
-      title: "Pearl School",
-      subtitle: "Educational Platform",
-      description:
-      "Designed and developed a dynamic and interactive website for a school using the Wix platform. Features include event management, contact forms, and an intuitive admin panel for seamless content updates.",
-      imageAsset: "assets/pearl.png",
-      websiteUrl: "https://www.pearlmatricschool.com/",
-      category: "Education",
-      tech: ["Wix", "JavaScript", "CSS3"],
-      color: Colors.blue,
-      completionYear: "2024",
-    ),
-    WebsiteData(
-      title: "Portfolio Landing",
-      subtitle: "Personal Branding",
-      description:
-      "A creative and responsive landing page for personal branding. Built with modern animations, clean layout, smooth scrolling, and optimized for all devices with stunning visual effects.",
-      imageAsset: "assets/landing.png",
-      websiteUrl: "https://portfolio.example.com",
-      category: "Portfolio",
-      tech: ["React", "Framer Motion", "Tailwind"],
-      color: Colors.purple,
-      completionYear: "2024",
-    ),
-    WebsiteData(
-      title: "E-Commerce Store",
-      subtitle: "Online Shopping Platform",
-      description:
-      "Full-featured e-commerce platform with payment integration, inventory management, and customer analytics. Built for scalability and performance with modern UI/UX principles.",
-      imageAsset: "assets/ecommerce.png",
-      websiteUrl: "https://store.example.com",
-      category: "E-Commerce",
-      tech: ["Next.js", "Stripe", "MongoDB"],
-      color: Colors.green,
-      completionYear: "2024",
-    ),
-  ];
+  // Use repository to get website data
+  final PortfolioRepository _repository = PortfolioRepository();
+  late List<WebsiteData> websites;
 
   @override
   void initState() {
     super.initState();
+
+    // Initialize websites from repository
+    websites = _repository.getWebsites();
+
     _indicatorController = AnimationController(
       duration: Duration(milliseconds: 300),
       vsync: this,
@@ -132,7 +103,7 @@ class _WebsiteCarouselState extends State<WebsiteCarousel>
           colors: [
             Colors.grey[50]!,
             Colors.white,
-            websites[currentPage].color.withOpacity(0.05),
+            websites[currentPage].themeColor.withOpacity(0.05),
           ],
         ),
       ),
@@ -143,7 +114,7 @@ class _WebsiteCarouselState extends State<WebsiteCarousel>
             child: CustomPaint(
               painter: WebBackgroundPainter(
                 animation: _floatingController,
-                color: websites[currentPage].color,
+                color: websites[currentPage].themeColor,
               ),
             ),
           ),
@@ -173,39 +144,7 @@ class _WebsiteCarouselState extends State<WebsiteCarousel>
             child: Column(
               children: [
                 // Website titles as indicators
-                Row(
-                  mainAxisAlignment: MainAxisAlignment.center,
-                  children: List.generate(
-                    websites.length,
-                        (index) => GestureDetector(
-                      onTap: () => _goToPage(index),
-                      child: AnimatedContainer(
-                        duration: Duration(milliseconds: 300),
-                        margin: EdgeInsets.symmetric(horizontal: 8),
-                        padding: EdgeInsets.symmetric(horizontal: 12, vertical: 6),
-                        decoration: BoxDecoration(
-                          color: currentPage == index
-                              ? websites[index].color
-                              : Colors.white.withOpacity(0.7),
-                          borderRadius: BorderRadius.circular(15),
-                          border: Border.all(
-                            color: websites[index].color.withOpacity(0.3),
-                          ),
-                        ),
-                        child: Text(
-                          websites[index].category,
-                          style: GoogleFonts.inter(
-                            color: currentPage == index
-                                ? Colors.white
-                                : websites[index].color,
-                            fontSize: 12,
-                            fontWeight: FontWeight.w600,
-                          ),
-                        ),
-                      ),
-                    ),
-                  ),
-                ),
+
                 SizedBox(height: 15),
                 // Traditional dot indicators
                 Row(
@@ -219,8 +158,8 @@ class _WebsiteCarouselState extends State<WebsiteCarousel>
                       height: 8,
                       decoration: BoxDecoration(
                         color: currentPage == index
-                            ? websites[currentPage].color
-                            : websites[currentPage].color.withOpacity(0.3),
+                            ? websites[currentPage].themeColor
+                            : websites[currentPage].themeColor.withOpacity(0.3),
                         borderRadius: BorderRadius.circular(4),
                       ),
                     ),
@@ -269,42 +208,18 @@ class _WebsiteCarouselState extends State<WebsiteCarousel>
         borderRadius: BorderRadius.circular(25),
         boxShadow: [
           BoxShadow(
-            color: websites[currentPage].color.withOpacity(0.2),
+            color: websites[currentPage].themeColor.withOpacity(0.2),
             blurRadius: 15,
             offset: Offset(0, 3),
           ),
         ],
       ),
       child: IconButton(
-        icon: Icon(icon, color: websites[currentPage].color, size: 20),
+        icon: Icon(icon, color: websites[currentPage].themeColor, size: 20),
         onPressed: onPressed,
       ),
     );
   }
-}
-
-class WebsiteData {
-  final String title;
-  final String subtitle;
-  final String description;
-  final String imageAsset;
-  final String websiteUrl;
-  final String category;
-  final List<String> tech;
-  final Color color;
-  final String completionYear;
-
-  WebsiteData({
-    required this.title,
-    required this.subtitle,
-    required this.description,
-    required this.imageAsset,
-    required this.websiteUrl,
-    required this.category,
-    required this.tech,
-    required this.color,
-    required this.completionYear,
-  });
 }
 
 class WebsiteAd extends StatelessWidget {
@@ -356,13 +271,13 @@ class WebsiteAd extends StatelessWidget {
                         decoration: BoxDecoration(
                           gradient: LinearGradient(
                             colors: [
-                              websiteData.color.withOpacity(0.1),
-                              websiteData.color.withOpacity(0.05),
+                              websiteData.themeColor.withOpacity(0.1),
+                              websiteData.themeColor.withOpacity(0.05),
                             ],
                           ),
                           borderRadius: BorderRadius.circular(20),
                           border: Border.all(
-                            color: websiteData.color.withOpacity(0.3),
+                            color: websiteData.themeColor.withOpacity(0.3),
                           ),
                         ),
                         child: Row(
@@ -371,13 +286,13 @@ class WebsiteAd extends StatelessWidget {
                             Icon(
                               Icons.web,
                               size: 14,
-                              color: websiteData.color,
+                              color: websiteData.themeColor,
                             ),
                             SizedBox(width: 6),
                             Text(
                               "${websiteData.category.toUpperCase()} • ${websiteData.completionYear}",
                               style: GoogleFonts.inter(
-                                color: websiteData.color,
+                                color: websiteData.themeColor,
                                 fontWeight: FontWeight.w600,
                                 fontSize: 11,
                                 letterSpacing: 1.2,
@@ -393,8 +308,8 @@ class WebsiteAd extends StatelessWidget {
                       ShaderMask(
                         shaderCallback: (bounds) => LinearGradient(
                           colors: [
-                            websiteData.color,
-                            websiteData.color.withOpacity(0.7),
+                            websiteData.themeColor,
+                            websiteData.themeColor.withOpacity(0.7),
                           ],
                         ).createShader(bounds),
                         child: Text(
@@ -428,11 +343,11 @@ class WebsiteAd extends StatelessWidget {
                           color: Colors.white.withOpacity(0.9),
                           borderRadius: BorderRadius.circular(20),
                           border: Border.all(
-                            color: websiteData.color.withOpacity(0.1),
+                            color: websiteData.themeColor.withOpacity(0.1),
                           ),
                           boxShadow: [
                             BoxShadow(
-                              color: websiteData.color.withOpacity(0.1),
+                              color: websiteData.themeColor.withOpacity(0.1),
                               blurRadius: 20,
                               offset: Offset(0, 5),
                             ),
@@ -454,7 +369,7 @@ class WebsiteAd extends StatelessWidget {
                       Wrap(
                         spacing: 8,
                         runSpacing: 8,
-                        children: websiteData.tech
+                        children: websiteData.technologies
                             .map((tech) => _buildTechChip(tech))
                             .toList(),
                       ),
@@ -498,7 +413,7 @@ class WebsiteAd extends StatelessWidget {
                             borderRadius: BorderRadius.circular(25),
                             boxShadow: [
                               BoxShadow(
-                                color: websiteData.color.withOpacity(0.3),
+                                color: websiteData.themeColor.withOpacity(0.3),
                                 blurRadius: 30,
                                 spreadRadius: 5,
                                 offset: Offset(0, 10),
@@ -579,16 +494,16 @@ class WebsiteAd extends StatelessWidget {
     return Container(
       padding: EdgeInsets.symmetric(horizontal: 12, vertical: 6),
       decoration: BoxDecoration(
-        color: websiteData.color.withOpacity(0.1),
+        color: websiteData.themeColor.withOpacity(0.1),
         borderRadius: BorderRadius.circular(15),
         border: Border.all(
-          color: websiteData.color.withOpacity(0.3),
+          color: websiteData.themeColor.withOpacity(0.3),
         ),
       ),
       child: Text(
         tech,
         style: GoogleFonts.inter(
-          color: websiteData.color,
+          color: websiteData.themeColor,
           fontSize: 11,
           fontWeight: FontWeight.w600,
         ),
@@ -602,14 +517,14 @@ class WebsiteAd extends StatelessWidget {
       decoration: BoxDecoration(
         gradient: LinearGradient(
           colors: [
-            websiteData.color,
-            websiteData.color.withOpacity(0.8),
+            websiteData.themeColor,
+            websiteData.themeColor.withOpacity(0.8),
           ],
         ),
         borderRadius: BorderRadius.circular(25),
         boxShadow: [
           BoxShadow(
-            color: websiteData.color.withOpacity(0.4),
+            color: websiteData.themeColor.withOpacity(0.4),
             blurRadius: 15,
             offset: Offset(0, 5),
           ),
@@ -653,16 +568,16 @@ class WebsiteAd extends StatelessWidget {
     return Container(
       height: 50,
       decoration: BoxDecoration(
-        color: outlined ? Colors.transparent : websiteData.color,
+        color: outlined ? Colors.transparent : websiteData.themeColor,
         borderRadius: BorderRadius.circular(25),
         border: outlined
-            ? Border.all(color: websiteData.color, width: 2)
+            ? Border.all(color: websiteData.themeColor, width: 2)
             : null,
         boxShadow: outlined
             ? null
             : [
           BoxShadow(
-            color: websiteData.color.withOpacity(0.3),
+            color: websiteData.themeColor.withOpacity(0.3),
             blurRadius: 15,
             offset: Offset(0, 5),
           ),
@@ -680,14 +595,14 @@ class WebsiteAd extends StatelessWidget {
               children: [
                 Icon(
                   Icons.arrow_forward,
-                  color: outlined ? websiteData.color : Colors.white,
+                  color: outlined ? websiteData.themeColor : Colors.white,
                   size: 18,
                 ),
                 SizedBox(width: 8),
                 Text(
                   label,
                   style: GoogleFonts.poppins(
-                    color: outlined ? websiteData.color : Colors.white,
+                    color: outlined ? websiteData.themeColor : Colors.white,
                     fontSize: 14,
                     fontWeight: FontWeight.w600,
                     letterSpacing: 0.5,

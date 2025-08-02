@@ -4,7 +4,7 @@ import 'package:google_fonts/google_fonts.dart';
 import 'package:responsive_framework/responsive_framework.dart';
 import 'dart:html' as html;
 
-import '../../../models/internship_model.dart';
+import '../../../data/models/internship_model.dart';
 import '../../../utils/constants.dart';
 import '../../../utils/screen_helper.dart';
 

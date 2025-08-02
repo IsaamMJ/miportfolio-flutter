@@ -5,7 +5,7 @@ import 'package:responsive_framework/responsive_framework.dart';
 import 'package:url_launcher/url_launcher.dart';
 
 import '../../../utils/constants.dart';
-import '../../../models/footer_item.dart';
+import '../../../data/models/footer_item.dart';
 import '../../../utils/constants.dart';
 import '../../../utils/screen_helper.dart';
 
