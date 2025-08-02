@@ -1,9 +1,9 @@
 import 'package:flutter/material.dart';
 import 'package:google_fonts/google_fonts.dart';
 
-import '../../../data/models/stat.dart';
-import '../../../utils/constants.dart';
-import '../../../utils/screen_helper.dart';
+import '../../../../data/models/stat.dart';
+import '../../../../utils/constants.dart';
+import '../../../../utils/screen_helper.dart';
 
 final List<Stat> stats = [
   Stat(count: "1", text: "Apps\nDeployed", icon: Icons.mobile_friendly),

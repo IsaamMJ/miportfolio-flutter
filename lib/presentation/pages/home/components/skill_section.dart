@@ -1,8 +1,8 @@
 import 'package:flutter/material.dart';
 import 'package:google_fonts/google_fonts.dart';
 
-import '../../../data/models/skill.dart';
-import '../../../utils/constants.dart';
+import '../../../../data/models/skill.dart';
+import '../../../../utils/constants.dart';
 
 List<Skill> skills = [
   Skill(skill: "Flutter", percentage: 90),

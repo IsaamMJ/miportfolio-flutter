@@ -1,8 +1,7 @@
 import 'package:flutter/material.dart';
 import 'package:flutter/rendering.dart';
 
-import '../../utils/constants.dart';
-import '../../utils/globals.dart';
+import '../../../utils/globals.dart';
 import 'components/hero_section.dart';
 import 'components/cv_section.dart';
 import 'components/internship_section.dart';
@@ -23,7 +22,7 @@ class _HomeState extends State<Home> {
   // ScrollController for the sticky header
   final ScrollController _scrollController = ScrollController();
 
-  // 📱 CONSISTENT RESPONSIVE BREAKPOINTS (matching IOSAddApp)
+  // 📱 CONSISTENT RESPONSIVE BREAKPOINTS
   static const double mobileBreakpoint = 768.0;
   static const double tabletBreakpoint = 1024.0;
   static const double desktopBreakpoint = 1200.0;
@@ -42,10 +41,10 @@ class _HomeState extends State<Home> {
 
   double _getResponsivePadding(BuildContext context) {
     final screenWidth = MediaQuery.of(context).size.width;
-    if (screenWidth >= desktopBreakpoint) return 120.0; // Large desktop
-    if (screenWidth >= tabletBreakpoint) return 80.0;   // Desktop/tablet
-    if (screenWidth >= mobileBreakpoint) return 40.0;   // Large mobile/small tablet
-    return 24.0; // Mobile - increased from 20.0 for better spacing
+    if (screenWidth >= desktopBreakpoint) return 120.0;
+    if (screenWidth >= tabletBreakpoint) return 80.0;
+    if (screenWidth >= mobileBreakpoint) return 40.0;
+    return 24.0;
   }
 
   double _getResponsiveFontSize(BuildContext context, {
@@ -59,13 +58,13 @@ class _HomeState extends State<Home> {
     return mobile;
   }
 
-  // IOSAddApp specific spacing calculation
-  double _getIOSAddAppSpacing(BuildContext context) {
+  // Fixed: Better carousel spacing calculation
+  double _getCarouselSpacing(BuildContext context) {
     final screenWidth = MediaQuery.of(context).size.width;
-    if (screenWidth >= desktopBreakpoint) return 80.0;  // Large spacing for desktop
-    if (screenWidth >= tabletBreakpoint) return 60.0;   // Medium spacing for tablet
-    if (screenWidth >= mobileBreakpoint) return 40.0;   // Moderate spacing for large mobile
-    return 30.0; // Smaller spacing for mobile
+    if (screenWidth >= desktopBreakpoint) return 60.0;
+    if (screenWidth >= tabletBreakpoint) return 40.0;
+    if (screenWidth >= mobileBreakpoint) return 30.0;
+    return 20.0;
   }
 
   // 📱 DEVICE TYPE DETECTION
@@ -89,117 +88,78 @@ class _HomeState extends State<Home> {
           // 📌 STICKY HEADER
           EnhancedHeader(scrollController: _scrollController),
 
-          // 📜 SCROLLABLE CONTENT
+          // 📜 SCROLLABLE CONTENT - Fixed: Better overflow handling
           Expanded(
             child: SingleChildScrollView(
               controller: _scrollController,
+              physics: ClampingScrollPhysics(), // Fixed: Better scroll physics
               child: Column(
                 crossAxisAlignment: CrossAxisAlignment.start,
                 children: [
                   // 2. HERO/INTRO - First Impression
-                  Container(
+                  _buildSection(
                     key: homeKey,
-                    width: double.infinity,
-                    padding: EdgeInsets.symmetric(
-                      horizontal: _getResponsivePadding(context),
-                    ),
-                    child: ConstrainedBox(
-                      constraints: BoxConstraints(
-                        maxWidth: _isDesktop(context) ? 1200.0 : double.infinity,
-                      ),
-                      child: HeroSection(),
-                    ),
+                    context: context,
+                    child: HeroSection(),
+                    maxWidth: 1200.0,
                   ),
 
                   // 4. SKILLS - What You Can Do
-                  SizedBox(height: _getResponsiveSpacing(context, mobile: 30.0, tablet: 40.0, desktop: 50.0)),
-                  Container(
+                  _buildSection(
                     key: servicesKey,
-                    width: double.infinity,
-                    padding: EdgeInsets.symmetric(
-                      horizontal: _getResponsivePadding(context),
-                    ),
-                    child: ConstrainedBox(
-                      constraints: BoxConstraints(
-                        maxWidth: _isDesktop(context) ? 1200.0 : double.infinity,
-                      ),
-                      child: SkillSection(),
-                    ),
+                    context: context,
+                    child: SkillSection(),
+                    maxWidth: 1200.0,
+                    topSpacing: _getResponsiveSpacing(context, mobile: 30.0, tablet: 40.0, desktop: 50.0),
                   ),
 
                   // 5. PORTFOLIO STATS - Quick Credibility
-                  SizedBox(height: _getResponsiveSpacing(context, mobile: 20.0, tablet: 30.0, desktop: 35.0)),
-                  Container(
-                    width: double.infinity,
-                    padding: EdgeInsets.symmetric(
-                      horizontal: _getResponsivePadding(context),
-                    ),
-                    child: ConstrainedBox(
-                      constraints: BoxConstraints(
-                        maxWidth: _isDesktop(context) ? 1000.0 : double.infinity,
-                      ),
-                      child: PortfolioStats(),
-                    ),
+                  _buildSection(
+                    context: context,
+                    child: PortfolioStats(),
+                    maxWidth: 1000.0,
+                    topSpacing: _getResponsiveSpacing(context, mobile: 20.0, tablet: 30.0, desktop: 35.0),
                   ),
 
-                  // 6. PROJECTS - Your Work in Action
+                  // 6. PROJECTS - Your Work in Action - Fixed: Better container management
                   SizedBox(height: _getResponsiveSpacing(context, mobile: 40.0, tablet: 50.0, desktop: 70.0)),
                   Container(
                     key: portfolioKey,
+                    width: double.infinity,
                     child: _buildProjectsSection(context),
                   ),
 
                   // 7. EXPERIENCE - Professional Background
-                  SizedBox(height: _getResponsiveSpacing(context, mobile: 35.0, tablet: 45.0, desktop: 60.0)),
-                  Container(
+                  _buildSection(
                     key: testimonialsKey,
-                    width: double.infinity,
-                    padding: EdgeInsets.symmetric(
-                      horizontal: _getResponsivePadding(context),
-                    ),
-                    child: ConstrainedBox(
-                      constraints: BoxConstraints(
-                        maxWidth: _isDesktop(context) ? 1200.0 : double.infinity,
-                      ),
-                      child: InternshipSection(),
-                    ),
+                    context: context,
+                    child: InternshipSection(),
+                    maxWidth: 1200.0,
+                    topSpacing: _getResponsiveSpacing(context, mobile: 35.0, tablet: 45.0, desktop: 60.0),
                   ),
 
                   // 8. EDUCATION - Academic Foundation
-                  SizedBox(height: _getResponsiveSpacing(context, mobile: 35.0, tablet: 45.0, desktop: 60.0)),
-                  Container(
-                    width: double.infinity,
-                    padding: EdgeInsets.symmetric(
-                      horizontal: _getResponsivePadding(context),
-                    ),
-                    child: ConstrainedBox(
-                      constraints: BoxConstraints(
-                        maxWidth: _isDesktop(context) ? 1200.0 : double.infinity,
-                      ),
-                      child: EduSection(),
-                    ),
+                  _buildSection(
+                    context: context,
+                    child: EduSection(),
+                    maxWidth: 1200.0,
+                    topSpacing: _getResponsiveSpacing(context, mobile: 35.0, tablet: 45.0, desktop: 60.0),
                   ),
 
                   // 9. CV DOWNLOAD - After Showcasing Value
-                  SizedBox(height: _getResponsiveSpacing(context, mobile: 30.0, tablet: 40.0, desktop: 50.0)),
-                  Container(
+                  _buildSection(
                     key: blogsKey,
-                    width: double.infinity,
-                    padding: EdgeInsets.symmetric(
-                      horizontal: _getResponsivePadding(context),
-                    ),
-                    child: ConstrainedBox(
-                      constraints: BoxConstraints(
-                        maxWidth: _isDesktop(context) ? 800.0 : double.infinity,
-                      ),
-                      child: CvSection(),
-                    ),
+                    context: context,
+                    child: CvSection(),
+                    maxWidth: 800.0,
+                    topSpacing: _getResponsiveSpacing(context, mobile: 30.0, tablet: 40.0, desktop: 50.0),
                   ),
 
-                  // 10. FOOTER - Contact & Social Links
+                  // 10. FOOTER - Contact & Social Links - Fixed: No padding needed
                   SizedBox(height: _getResponsiveSpacing(context, mobile: 35.0, tablet: 45.0, desktop: 60.0)),
                   Container(
                     key: contactKey,
+                    width: double.infinity,
                     child: Footer(),
                   ),
                 ],
@@ -208,6 +168,34 @@ class _HomeState extends State<Home> {
           ),
         ],
       ),
+    );
+  }
+
+  // Fixed: Centralized section builder to ensure consistent spacing and layout
+  Widget _buildSection({
+    Key? key,
+    required BuildContext context,
+    required Widget child,
+    required double maxWidth,
+    double? topSpacing,
+  }) {
+    return Column(
+      children: [
+        if (topSpacing != null) SizedBox(height: topSpacing),
+        Container(
+          key: key,
+          width: double.infinity,
+          padding: EdgeInsets.symmetric(
+            horizontal: _getResponsivePadding(context),
+          ),
+          child: ConstrainedBox(
+            constraints: BoxConstraints(
+              maxWidth: _isDesktop(context) ? maxWidth : double.infinity,
+            ),
+            child: child,
+          ),
+        ),
+      ],
     );
   }
 
@@ -437,8 +425,9 @@ class _HomeState extends State<Home> {
   Widget _buildProjectsSection(BuildContext context) {
     return Column(
       children: [
-        // Section header with responsive padding
+        // Section header with proper constraints
         Container(
+          width: double.infinity,
           padding: EdgeInsets.symmetric(horizontal: _getResponsivePadding(context)),
           child: ConstrainedBox(
             constraints: BoxConstraints(
@@ -452,30 +441,58 @@ class _HomeState extends State<Home> {
           ),
         ),
 
+        // Better spacing between header and carousels
         SizedBox(height: _getResponsiveSpacing(context, mobile: 30.0, tablet: 40.0, desktop: 50.0)),
 
-        // App project section with enhanced spacing and container
-        Container(
-          margin: EdgeInsets.symmetric(vertical: _getIOSAddAppSpacing(context) * 0.5),
-          child: _buildResponsiveCarouselContainer(
-            context: context,
-            child: IOSAddApp(),
-            semanticLabel: 'Mobile App Projects',
-          ),
+        // App project section - FIXED: Simple container without complex height calculations
+        _buildSimpleCarouselContainer(
+          context: context,
+          child: IOSAddApp(),
+          semanticLabel: 'Mobile App Projects',
         ),
 
-        SizedBox(height: _getResponsiveSpacing(context, mobile: 25.0, tablet: 35.0, desktop: 60.0)),
+        // Better spacing between carousels
+        SizedBox(height: _getResponsiveSpacing(context, mobile: 40.0, tablet: 50.0, desktop: 60.0)),
 
-        // Website project section with responsive height
-        Container(
-          margin: EdgeInsets.symmetric(vertical: _getIOSAddAppSpacing(context) * 0.3),
-          child: _buildResponsiveCarouselContainer(
-            context: context,
-            child: WebsiteCarousel(),
-            semanticLabel: 'Website Projects',
-          ),
+        // Website project section - FIXED: Simple container without complex height calculations
+        _buildSimpleCarouselContainer(
+          context: context,
+          child: WebsiteCarousel(),
+          semanticLabel: 'Website Projects',
         ),
       ],
+    );
+  }
+  Widget _buildSimpleCarouselContainer({
+    required BuildContext context,
+    required Widget child,
+    required String semanticLabel,
+  }) {
+    return Semantics(
+      label: semanticLabel,
+      child: Container(
+        width: double.infinity,
+        // FIXED: Use a simple, reasonable height instead of complex calculations
+        height: _isMobile(context) ? 500.0 : _isTablet(context) ? 600.0 : 700.0,
+        margin: EdgeInsets.symmetric(
+          horizontal: _isMobile(context) ? 0 : 20,
+        ),
+        decoration: BoxDecoration(
+          borderRadius: BorderRadius.circular(_isMobile(context) ? 0 : 16),
+          color: Colors.white,
+          boxShadow: _isMobile(context) ? null : [
+            BoxShadow(
+              color: Colors.black.withOpacity(0.03),
+              blurRadius: 20,
+              offset: Offset(0, 4),
+            ),
+          ],
+        ),
+        child: ClipRRect(
+          borderRadius: BorderRadius.circular(_isMobile(context) ? 0 : 16),
+          child: child, // The carousel content will fit within this container
+        ),
+      ),
     );
   }
 
@@ -520,60 +537,68 @@ class _HomeState extends State<Home> {
     required BuildContext context,
     required Widget child,
     required String semanticLabel,
+    required bool isIOSApp,
   }) {
+    // Fixed: Better height calculation strategy
     final screenHeight = MediaQuery.of(context).size.height;
-    final safeAreaTop = MediaQuery.of(context).padding.top;
-    final safeAreaBottom = MediaQuery.of(context).padding.bottom;
-    final headerHeight = 60.0; // Approximate header height
+    final screenWidth = MediaQuery.of(context).size.width;
 
-    // Calculate available screen height
-    final availableHeight = screenHeight - safeAreaTop - safeAreaBottom - headerHeight;
-
-    // Enhanced responsive height calculation for IOSAddApp
+    // Calculate optimal carousel height based on content type and screen size
     double carouselHeight;
-    if (_isDesktop(context)) {
-      carouselHeight = availableHeight * 0.75; // Desktop - show more content
-    } else if (_isTablet(context)) {
-      carouselHeight = availableHeight * 0.65; // Tablet - balanced view
+
+    if (isIOSApp) {
+      // iOS App carousel - more compact
+      if (_isDesktop(context)) {
+        carouselHeight = screenHeight * 0.7;
+      } else if (_isTablet(context)) {
+        carouselHeight = screenHeight * 0.6;
+      } else {
+        carouselHeight = screenHeight * 0.5;
+      }
+      // Clamp iOS app heights
+      carouselHeight = carouselHeight.clamp(400.0, 700.0);
     } else {
-      carouselHeight = availableHeight * 0.55; // Mobile - compact but usable view
+      // Website carousel - can be larger
+      if (_isDesktop(context)) {
+        carouselHeight = screenHeight * 0.8;
+      } else if (_isTablet(context)) {
+        carouselHeight = screenHeight * 0.7;
+      } else {
+        carouselHeight = screenHeight * 0.6;
+      }
+      // Clamp website carousel heights
+      carouselHeight = carouselHeight.clamp(450.0, 800.0);
     }
 
-    // Improved height constraints based on device with better min/max values
-    if (_isMobile(context)) {
-      carouselHeight = carouselHeight.clamp(400.0, 600.0); // Increased minimum for mobile
-    } else if (_isTablet(context)) {
-      carouselHeight = carouselHeight.clamp(500.0, 700.0); // Better tablet range
-    } else {
-      carouselHeight = carouselHeight.clamp(600.0, 900.0); // Optimal desktop range
-    }
-
+    // Fixed: Better decoration and spacing
     return Semantics(
       label: semanticLabel,
       child: Container(
         height: carouselHeight,
         width: double.infinity,
-        // Add extra spacing around IOSAddApp specifically
-        margin: child is IOSAddApp
-            ? EdgeInsets.symmetric(vertical: _getIOSAddAppSpacing(context) * 0.4)
-            : null,
-        decoration: child is IOSAddApp
-            ? BoxDecoration(
-          borderRadius: BorderRadius.circular(_isMobile(context) ? 12 : 16),
-          boxShadow: [
+        margin: EdgeInsets.symmetric(
+          horizontal: _isMobile(context) ? 0 : 20, // Add margin only on larger screens
+        ),
+        decoration: BoxDecoration(
+          borderRadius: BorderRadius.circular(_isMobile(context) ? 0 : 16),
+          boxShadow: _isMobile(context) ? null : [
             BoxShadow(
-              color: Colors.black.withOpacity(0.02),
-              blurRadius: 10,
-              offset: Offset(0, 2),
+              color: Colors.black.withOpacity(0.03),
+              blurRadius: 20,
+              offset: Offset(0, 4),
             ),
           ],
-        )
-            : null,
+        ),
         child: ClipRRect(
-          borderRadius: child is IOSAddApp
-              ? BorderRadius.circular(_isMobile(context) ? 12 : 16)
-              : BorderRadius.zero,
-          child: child,
+          borderRadius: BorderRadius.circular(_isMobile(context) ? 0 : 16),
+          child: Container(
+            // Fixed: Add subtle background for better separation
+            decoration: BoxDecoration(
+              color: Colors.white,
+              borderRadius: BorderRadius.circular(_isMobile(context) ? 0 : 16),
+            ),
+            child: child,
+          ),
         ),
       ),
     );

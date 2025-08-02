@@ -1,8 +1,8 @@
 import 'package:flutter/material.dart';
 import 'package:flutter/rendering.dart';
 import 'package:google_fonts/google_fonts.dart';
-import '../../../utils/constants.dart';
-import '../../../utils/screen_helper.dart';
+import '../../../../utils/constants.dart';
+import '../../../../utils/screen_helper.dart';
 
 class WebsiteAd extends StatelessWidget {
   final String title;

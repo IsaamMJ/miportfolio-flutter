@@ -1,6 +1,6 @@
 import 'package:flutter/material.dart';
 import 'package:google_fonts/google_fonts.dart';
-import 'package:miportfolio/pages/home/home.dart';
+import 'package:miportfolio/presentation/pages/home/home.dart';
 import 'package:miportfolio/utils/constants.dart';
 import 'package:responsive_framework/responsive_framework.dart';
 

@@ -5,9 +5,10 @@ import 'package:responsive_framework/responsive_framework.dart';
 
 // Import for math functions
 import 'dart:math' as math;
-import '../../../data/models/design_process.dart';
-import '../../../utils/constants.dart';
-import '../../../utils/screen_helper.dart';
+
+import '../../../../data/models/design_process.dart';
+import '../../../../utils/constants.dart';
+import '../../../../utils/screen_helper.dart';
 
 final List<DesignProcess> designProcesses = [
   DesignProcess(
