@@ -412,9 +412,9 @@ class _SkillSectionState extends State<SkillSection>
       child: Row(
         mainAxisAlignment: MainAxisAlignment.center,
         children: [
-          _buildStatCard(context, "Years Experience", "3+", Icons.timeline),
+          _buildStatCard(context, "Years Experience", "1+", Icons.timeline),
           SizedBox(width: _isMobileSmall(context) ? 10.0 : 12.0),
-          _buildStatCard(context, "Projects", "25+", Icons.code),
+          _buildStatCard(context, "Projects", "20+", Icons.code),
           SizedBox(width: _isMobileSmall(context) ? 10.0 : 12.0),
           _buildStatCard(context, "Technologies", "${skills.length}+", Icons.settings),
         ],
@@ -424,8 +424,8 @@ class _SkillSectionState extends State<SkillSection>
 
   Widget _buildStatsGrid(BuildContext context, {required int crossAxisCount}) {
     final stats = [
-      {"title": "Years Experience", "value": "3+", "icon": Icons.timeline},
-      {"title": "Projects Completed", "value": "25+", "icon": Icons.code},
+      {"title": "Years Experience", "value": "1+", "icon": Icons.timeline},
+      {"title": "Projects Completed", "value": "20+", "icon": Icons.code},
       {"title": "Technologies", "value": "${skills.length}+", "icon": Icons.settings},
     ];
 

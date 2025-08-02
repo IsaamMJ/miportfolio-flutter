@@ -1,5 +1,6 @@
 import 'package:flutter/material.dart';
 import 'package:google_fonts/google_fonts.dart';
+import 'package:url_launcher/url_launcher.dart';
 import 'dart:html' as html;
 
 import '../../../../utils/constants.dart';
@@ -161,8 +162,8 @@ class _HeroSectionState extends State<HeroSection>
   void _startCounterAnimations() {
     _counterController.addListener(() {
       setState(() {
-        _projectsCount = (25 * _counterController.value).round();
-        _yearsCount = (3 * _counterController.value).round();
+        _projectsCount = (20 * _counterController.value).round();
+        _yearsCount = (1 * _counterController.value).round();
       });
     });
     _counterController.forward();
@@ -485,7 +486,7 @@ class _HeroSectionState extends State<HeroSection>
       children: [
         _buildMetric("$_projectsCount+", "Projects", Icons.apps),
         _buildMetric("${_yearsCount}+", "Years", Icons.timeline),
-        _buildMetric("100%", "Client Satisfaction", Icons.star),
+        _buildMetric("99.9%", "Client Satisfaction", Icons.star),
       ],
     );
   }
@@ -605,8 +606,17 @@ class _HeroSectionState extends State<HeroSection>
         text: "VIEW PROJECTS",
         isHovered: _isGitHubHovered,
         onHover: (hovered) => setState(() => _isGitHubHovered = hovered),
-        onPressed: () {
-          // Scroll to projects section
+        onPressed: () async {
+          final Uri url = Uri.parse('https://github.com/IsaamMJ');
+          if (await canLaunchUrl(url)) {
+            await launchUrl(
+              url,
+              mode: LaunchMode.externalApplication, // Opens in new tab/browser
+            );
+          } else {
+            // Handle error - could show a snackbar or dialog
+            print('Could not launch $url');
+          }
         },
         icon: Icons.work,
       ),
@@ -614,10 +624,17 @@ class _HeroSectionState extends State<HeroSection>
         text: "DOWNLOAD RESUME",
         isHovered: _isResumeHovered,
         onHover: (hovered) => setState(() => _isResumeHovered = hovered),
-        onPressed: () {
-          html.AnchorElement anchor = html.AnchorElement(href: 'assets/resume.pdf')
-            ..setAttribute("download", "Mohamed_Isaam_Resume.pdf")
-            ..click();
+        onPressed: () async {
+          final Uri url = Uri.parse('https://drive.google.com/drive/folders/1645fWZIewZvWyOpMQlTPBr6yPx0XQ8YI?usp=drive_link');
+          if (await canLaunchUrl(url)) {
+            await launchUrl(
+              url,
+              mode: LaunchMode.externalApplication, // Opens in new tab/browser
+            );
+          } else {
+            // Handle error - could show a snackbar or dialog
+            print('Could not launch $url');
+          }
         },
         icon: Icons.download,
         isSecondary: true,

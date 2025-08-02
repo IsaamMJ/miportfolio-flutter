@@ -22,55 +22,108 @@ class _HomeState extends State<Home> {
   // ScrollController for the sticky header
   final ScrollController _scrollController = ScrollController();
 
-  // 📱 CONSISTENT RESPONSIVE BREAKPOINTS
-  static const double mobileBreakpoint = 768.0;
-  static const double tabletBreakpoint = 1024.0;
-  static const double desktopBreakpoint = 1200.0;
+  // 📱 ENHANCED RESPONSIVE BREAKPOINTS
+  static const double _extraSmallBreakpoint = 320.0;  // Very small phones
+  static const double _smallBreakpoint = 576.0;       // Small phones
+  static const double _mediumBreakpoint = 768.0;      // Tablets
+  static const double _largeBreakpoint = 992.0;       // Small desktops
+  static const double _extraLargeBreakpoint = 1200.0; // Large desktops
+  static const double _xxlBreakpoint = 1400.0;        // Extra large screens
 
-  // 📏 RESPONSIVE SPACING UTILITIES
+  // 📱 DEVICE TYPE DETECTION
+  bool _isExtraSmall(BuildContext context) => MediaQuery.of(context).size.width < _extraSmallBreakpoint;
+  bool _isSmall(BuildContext context) => MediaQuery.of(context).size.width >= _extraSmallBreakpoint && MediaQuery.of(context).size.width < _smallBreakpoint;
+  bool _isMobile(BuildContext context) => MediaQuery.of(context).size.width < _mediumBreakpoint;
+  bool _isTablet(BuildContext context) => MediaQuery.of(context).size.width >= _mediumBreakpoint && MediaQuery.of(context).size.width < _largeBreakpoint;
+  bool _isDesktop(BuildContext context) => MediaQuery.of(context).size.width >= _largeBreakpoint && MediaQuery.of(context).size.width < _extraLargeBreakpoint;
+  bool _isLargeDesktop(BuildContext context) => MediaQuery.of(context).size.width >= _extraLargeBreakpoint && MediaQuery.of(context).size.width < _xxlBreakpoint;
+  bool _isExtraLargeDesktop(BuildContext context) => MediaQuery.of(context).size.width >= _xxlBreakpoint;
+
+  // 📏 ENHANCED RESPONSIVE SPACING UTILITIES
   double _getResponsiveSpacing(BuildContext context, {
+    double extraSmall = 12.0,
+    double small = 16.0,
     double mobile = 20.0,
-    double tablet = 40.0,
-    double desktop = 60.0,
+    double tablet = 32.0,
+    double desktop = 48.0,
+    double large = 60.0,
+    double extraLarge = 80.0,
   }) {
-    final screenWidth = MediaQuery.of(context).size.width;
-    if (screenWidth >= tabletBreakpoint) return desktop;
-    if (screenWidth >= mobileBreakpoint) return tablet;
+    if (_isExtraLargeDesktop(context)) return extraLarge;
+    if (_isLargeDesktop(context)) return large;
+    if (_isDesktop(context)) return desktop;
+    if (_isTablet(context)) return tablet;
+    if (_isSmall(context)) return small;
+    if (_isExtraSmall(context)) return extraSmall;
     return mobile;
   }
 
   double _getResponsivePadding(BuildContext context) {
-    final screenWidth = MediaQuery.of(context).size.width;
-    if (screenWidth >= desktopBreakpoint) return 120.0;
-    if (screenWidth >= tabletBreakpoint) return 80.0;
-    if (screenWidth >= mobileBreakpoint) return 40.0;
+    if (_isExtraLargeDesktop(context)) return 140.0;
+    if (_isLargeDesktop(context)) return 120.0;
+    if (_isDesktop(context)) return 100.0;
+    if (_isTablet(context)) return 80.0;
+    if (_isSmall(context)) return 20.0;
+    if (_isExtraSmall(context)) return 16.0;
     return 24.0;
   }
 
   double _getResponsiveFontSize(BuildContext context, {
+    double extraSmall = 12.0,
+    double small = 13.0,
     double mobile = 14.0,
     double tablet = 16.0,
     double desktop = 18.0,
+    double large = 20.0,
+    double extraLarge = 22.0,
   }) {
-    final screenWidth = MediaQuery.of(context).size.width;
-    if (screenWidth >= tabletBreakpoint) return desktop;
-    if (screenWidth >= mobileBreakpoint) return tablet;
+    if (_isExtraLargeDesktop(context)) return extraLarge;
+    if (_isLargeDesktop(context)) return large;
+    if (_isDesktop(context)) return desktop;
+    if (_isTablet(context)) return tablet;
+    if (_isSmall(context)) return small;
+    if (_isExtraSmall(context)) return extraSmall;
     return mobile;
   }
 
-  // Fixed: Better carousel spacing calculation
-  double _getCarouselSpacing(BuildContext context) {
+  // 📱 RESPONSIVE CAROUSEL HEIGHT CALCULATION
+  double _getCarouselHeight(BuildContext context) {
+    final screenHeight = MediaQuery.of(context).size.height;
     final screenWidth = MediaQuery.of(context).size.width;
-    if (screenWidth >= desktopBreakpoint) return 60.0;
-    if (screenWidth >= tabletBreakpoint) return 40.0;
-    if (screenWidth >= mobileBreakpoint) return 30.0;
-    return 20.0;
+
+    // Ensure minimum height while being responsive
+    double baseHeight;
+
+    if (_isExtraSmall(context)) {
+      baseHeight = screenHeight * 0.65; // 65% for very small screens
+    } else if (_isMobile(context)) {
+      baseHeight = screenHeight * 0.7;  // 70% for mobile
+    } else if (_isTablet(context)) {
+      baseHeight = screenHeight * 0.75; // 75% for tablets
+    } else {
+      baseHeight = screenHeight * 0.8;  // 80% for desktop
+    }
+
+    // Ensure reasonable minimum and maximum heights
+    final minHeight = _isExtraSmall(context) ? 400.0 : _isMobile(context) ? 450.0 : 500.0;
+    final maxHeight = _isExtraLargeDesktop(context) ? 900.0 : 800.0;
+
+    return baseHeight.clamp(minHeight, maxHeight);
   }
 
-  // 📱 DEVICE TYPE DETECTION
-  bool _isMobile(BuildContext context) => MediaQuery.of(context).size.width < mobileBreakpoint;
-  bool _isTablet(BuildContext context) => MediaQuery.of(context).size.width >= mobileBreakpoint && MediaQuery.of(context).size.width < tabletBreakpoint;
-  bool _isDesktop(BuildContext context) => MediaQuery.of(context).size.width >= tabletBreakpoint;
+  EdgeInsets _getCarouselMargin(BuildContext context) {
+    if (_isExtraSmall(context)) return EdgeInsets.zero;
+    if (_isMobile(context)) return EdgeInsets.symmetric(horizontal: 8);
+    if (_isTablet(context)) return EdgeInsets.symmetric(horizontal: 16);
+    return EdgeInsets.symmetric(horizontal: 24);
+  }
+
+  double _getCarouselBorderRadius(BuildContext context) {
+    if (_isExtraSmall(context)) return 0;
+    if (_isMobile(context)) return 8;
+    if (_isTablet(context)) return 12;
+    return 16;
+  }
 
   @override
   void dispose() {
@@ -88,15 +141,15 @@ class _HomeState extends State<Home> {
           // 📌 STICKY HEADER
           EnhancedHeader(scrollController: _scrollController),
 
-          // 📜 SCROLLABLE CONTENT - Fixed: Better overflow handling
+          // 📜 SCROLLABLE CONTENT - Enhanced overflow handling
           Expanded(
             child: SingleChildScrollView(
               controller: _scrollController,
-              physics: ClampingScrollPhysics(), // Fixed: Better scroll physics
+              physics: ClampingScrollPhysics(),
               child: Column(
                 crossAxisAlignment: CrossAxisAlignment.start,
                 children: [
-                  // 2. HERO/INTRO - First Impression
+                  // 1. HERO/INTRO - First Impression
                   _buildSection(
                     key: homeKey,
                     context: context,
@@ -104,59 +157,126 @@ class _HomeState extends State<Home> {
                     maxWidth: 1200.0,
                   ),
 
-                  // 4. SKILLS - What You Can Do
+                  // 2. SKILLS - What You Can Do
                   _buildSection(
                     key: servicesKey,
                     context: context,
                     child: SkillSection(),
                     maxWidth: 1200.0,
-                    topSpacing: _getResponsiveSpacing(context, mobile: 30.0, tablet: 40.0, desktop: 50.0),
+                    topSpacing: _getResponsiveSpacing(
+                      context,
+                      extraSmall: 20.0,
+                      small: 24.0,
+                      mobile: 30.0,
+                      tablet: 40.0,
+                      desktop: 50.0,
+                      large: 60.0,
+                      extraLarge: 70.0,
+                    ),
                   ),
 
-                  // 5. PORTFOLIO STATS - Quick Credibility
+                  // 3. PORTFOLIO STATS - Quick Credibility
                   _buildSection(
                     context: context,
                     child: PortfolioStats(),
                     maxWidth: 1000.0,
-                    topSpacing: _getResponsiveSpacing(context, mobile: 20.0, tablet: 30.0, desktop: 35.0),
+                    topSpacing: _getResponsiveSpacing(
+                      context,
+                      extraSmall: 16.0,
+                      small: 20.0,
+                      mobile: 24.0,
+                      tablet: 32.0,
+                      desktop: 40.0,
+                      large: 45.0,
+                      extraLarge: 50.0,
+                    ),
                   ),
 
-                  // 6. PROJECTS - Your Work in Action - Fixed: Better container management
-                  SizedBox(height: _getResponsiveSpacing(context, mobile: 40.0, tablet: 50.0, desktop: 70.0)),
+                  // 4. PROJECTS - Your Work in Action
+                  SizedBox(
+                    height: _getResponsiveSpacing(
+                      context,
+                      extraSmall: 30.0,
+                      small: 35.0,
+                      mobile: 40.0,
+                      tablet: 50.0,
+                      desktop: 60.0,
+                      large: 70.0,
+                      extraLarge: 80.0,
+                    ),
+                  ),
                   Container(
                     key: portfolioKey,
                     width: double.infinity,
                     child: _buildProjectsSection(context),
                   ),
 
-                  // 7. EXPERIENCE - Professional Background
+                  // 5. EXPERIENCE - Professional Background
                   _buildSection(
                     key: testimonialsKey,
                     context: context,
                     child: InternshipSection(),
                     maxWidth: 1200.0,
-                    topSpacing: _getResponsiveSpacing(context, mobile: 35.0, tablet: 45.0, desktop: 60.0),
+                    topSpacing: _getResponsiveSpacing(
+                      context,
+                      extraSmall: 30.0,
+                      small: 35.0,
+                      mobile: 40.0,
+                      tablet: 50.0,
+                      desktop: 60.0,
+                      large: 70.0,
+                      extraLarge: 80.0,
+                    ),
                   ),
 
-                  // 8. EDUCATION - Academic Foundation
+                  // 6. EDUCATION - Academic Foundation
                   _buildSection(
                     context: context,
                     child: EduSection(),
                     maxWidth: 1200.0,
-                    topSpacing: _getResponsiveSpacing(context, mobile: 35.0, tablet: 45.0, desktop: 60.0),
+                    topSpacing: _getResponsiveSpacing(
+                      context,
+                      extraSmall: 30.0,
+                      small: 35.0,
+                      mobile: 40.0,
+                      tablet: 50.0,
+                      desktop: 60.0,
+                      large: 70.0,
+                      extraLarge: 80.0,
+                    ),
                   ),
 
-                  // 9. CV DOWNLOAD - After Showcasing Value
+                  // 7. CV DOWNLOAD - After Showcasing Value
                   _buildSection(
                     key: blogsKey,
                     context: context,
                     child: CvSection(),
                     maxWidth: 800.0,
-                    topSpacing: _getResponsiveSpacing(context, mobile: 30.0, tablet: 40.0, desktop: 50.0),
+                    topSpacing: _getResponsiveSpacing(
+                      context,
+                      extraSmall: 25.0,
+                      small: 30.0,
+                      mobile: 35.0,
+                      tablet: 45.0,
+                      desktop: 55.0,
+                      large: 65.0,
+                      extraLarge: 75.0,
+                    ),
                   ),
 
-                  // 10. FOOTER - Contact & Social Links - Fixed: No padding needed
-                  SizedBox(height: _getResponsiveSpacing(context, mobile: 35.0, tablet: 45.0, desktop: 60.0)),
+                  // 8. FOOTER - Contact & Social Links
+                  SizedBox(
+                    height: _getResponsiveSpacing(
+                      context,
+                      extraSmall: 30.0,
+                      small: 35.0,
+                      mobile: 40.0,
+                      tablet: 50.0,
+                      desktop: 60.0,
+                      large: 70.0,
+                      extraLarge: 80.0,
+                    ),
+                  ),
                   Container(
                     key: contactKey,
                     width: double.infinity,
@@ -171,7 +291,7 @@ class _HomeState extends State<Home> {
     );
   }
 
-  // Fixed: Centralized section builder to ensure consistent spacing and layout
+  // ENHANCED: Centralized section builder with better responsive handling
   Widget _buildSection({
     Key? key,
     required BuildContext context,
@@ -190,7 +310,7 @@ class _HomeState extends State<Home> {
           ),
           child: ConstrainedBox(
             constraints: BoxConstraints(
-              maxWidth: _isDesktop(context) ? maxWidth : double.infinity,
+              maxWidth: _isMobile(context) ? double.infinity : maxWidth,
             ),
             child: child,
           ),
@@ -200,27 +320,46 @@ class _HomeState extends State<Home> {
   }
 
   Widget _buildDrawer(BuildContext context) {
-    final responsivePadding = _getResponsivePadding(context).clamp(16.0, 24.0);
-    final responsiveFontSize = _getResponsiveFontSize(context, mobile: 14.0, tablet: 15.0, desktop: 16.0);
+    final responsivePadding = _getResponsivePadding(context).clamp(16.0, 28.0);
+    final responsiveFontSize = _getResponsiveFontSize(
+      context,
+      extraSmall: 12.0,
+      small: 13.0,
+      mobile: 14.0,
+      tablet: 15.0,
+      desktop: 16.0,
+    );
 
     return Drawer(
       backgroundColor: Colors.white,
       elevation: 10.0,
-      width: _isMobile(context) ? MediaQuery.of(context).size.width * 0.85 : 300.0,
+      width: _isExtraSmall(context)
+          ? MediaQuery.of(context).size.width * 0.9
+          : _isMobile(context)
+          ? MediaQuery.of(context).size.width * 0.85
+          : 320.0,
       child: SafeArea(
         child: Padding(
-          padding: EdgeInsets.symmetric(horizontal: responsivePadding, vertical: 20.0),
+          padding: EdgeInsets.symmetric(
+            horizontal: responsivePadding,
+            vertical: _isExtraSmall(context) ? 16.0 : 20.0,
+          ),
           child: Column(
             crossAxisAlignment: CrossAxisAlignment.start,
             children: [
               // Drawer Header
               Container(
-                padding: EdgeInsets.symmetric(vertical: 20.0),
+                padding: EdgeInsets.symmetric(
+                  vertical: _isExtraSmall(context) ? 16.0 : 20.0,
+                ),
                 child: Column(
                   crossAxisAlignment: CrossAxisAlignment.start,
                   children: [
                     Container(
-                      padding: EdgeInsets.symmetric(horizontal: 12.0, vertical: 8.0),
+                      padding: EdgeInsets.symmetric(
+                        horizontal: _isExtraSmall(context) ? 10.0 : 12.0,
+                        vertical: _isExtraSmall(context) ? 6.0 : 8.0,
+                      ),
                       decoration: BoxDecoration(
                         gradient: LinearGradient(
                           colors: [Colors.blue[600]!, Colors.purple[600]!],
@@ -231,12 +370,12 @@ class _HomeState extends State<Home> {
                         "M.",
                         style: TextStyle(
                           color: Colors.white,
-                          fontSize: responsiveFontSize + 8,
+                          fontSize: responsiveFontSize + (_isExtraSmall(context) ? 6 : 8),
                           fontWeight: FontWeight.w800,
                         ),
                       ),
                     ),
-                    SizedBox(height: 12.0),
+                    SizedBox(height: _isExtraSmall(context) ? 10.0 : 12.0),
                     Text(
                       "Navigation",
                       style: TextStyle(
@@ -246,7 +385,7 @@ class _HomeState extends State<Home> {
                       ),
                     ),
                     Container(
-                      width: 40.0,
+                      width: _isExtraSmall(context) ? 35.0 : 40.0,
                       height: 3.0,
                       margin: EdgeInsets.only(top: 8.0),
                       decoration: BoxDecoration(
@@ -269,7 +408,7 @@ class _HomeState extends State<Home> {
                         : _buildDrawerListItem(context, index);
                   },
                   separatorBuilder: (BuildContext context, int index) {
-                    return SizedBox(height: 12.0);
+                    return SizedBox(height: _isExtraSmall(context) ? 10.0 : 12.0);
                   },
                   itemCount: headerItems.length,
                 ),
@@ -277,13 +416,15 @@ class _HomeState extends State<Home> {
 
               // Drawer Footer
               Container(
-                padding: EdgeInsets.symmetric(vertical: 16.0),
+                padding: EdgeInsets.symmetric(
+                  vertical: _isExtraSmall(context) ? 12.0 : 16.0,
+                ),
                 child: Row(
                   children: [
                     Icon(
                       Icons.touch_app,
                       color: Colors.grey[400],
-                      size: 16.0,
+                      size: _isExtraSmall(context) ? 14.0 : 16.0,
                     ),
                     SizedBox(width: 8.0),
                     Flexible(
@@ -306,7 +447,14 @@ class _HomeState extends State<Home> {
   }
 
   Widget _buildDrawerButton(BuildContext context, int index) {
-    final responsiveFontSize = _getResponsiveFontSize(context, mobile: 14.0, tablet: 15.0, desktop: 16.0);
+    final responsiveFontSize = _getResponsiveFontSize(
+      context,
+      extraSmall: 12.0,
+      small: 13.0,
+      mobile: 14.0,
+      tablet: 15.0,
+      desktop: 16.0,
+    );
 
     return MouseRegion(
       cursor: SystemMouseCursors.click,
@@ -333,15 +481,18 @@ class _HomeState extends State<Home> {
               headerItems[index].onTap?.call();
             },
             child: Padding(
-              padding: EdgeInsets.symmetric(horizontal: 20.0, vertical: 16.0),
+              padding: EdgeInsets.symmetric(
+                horizontal: _isExtraSmall(context) ? 16.0 : 20.0,
+                vertical: _isExtraSmall(context) ? 14.0 : 16.0,
+              ),
               child: Row(
                 children: [
                   Icon(
                     Icons.work_outline,
                     color: Colors.white,
-                    size: responsiveFontSize + 4,
+                    size: responsiveFontSize + (_isExtraSmall(context) ? 2 : 4),
                   ),
-                  SizedBox(width: 12.0),
+                  SizedBox(width: _isExtraSmall(context) ? 10.0 : 12.0),
                   Expanded(
                     child: Text(
                       headerItems[index].title,
@@ -368,7 +519,14 @@ class _HomeState extends State<Home> {
   }
 
   Widget _buildDrawerListItem(BuildContext context, int index) {
-    final responsiveFontSize = _getResponsiveFontSize(context, mobile: 14.0, tablet: 15.0, desktop: 16.0);
+    final responsiveFontSize = _getResponsiveFontSize(
+      context,
+      extraSmall: 12.0,
+      small: 13.0,
+      mobile: 14.0,
+      tablet: 15.0,
+      desktop: 16.0,
+    );
 
     return Container(
       margin: EdgeInsets.symmetric(vertical: 2.0),
@@ -386,18 +544,21 @@ class _HomeState extends State<Home> {
             headerItems[index].onTap?.call();
           },
           child: Padding(
-            padding: EdgeInsets.symmetric(horizontal: 20.0, vertical: 16.0),
+            padding: EdgeInsets.symmetric(
+              horizontal: _isExtraSmall(context) ? 16.0 : 20.0,
+              vertical: _isExtraSmall(context) ? 14.0 : 16.0,
+            ),
             child: Row(
               children: [
                 Container(
-                  width: 6.0,
-                  height: 6.0,
+                  width: _isExtraSmall(context) ? 5.0 : 6.0,
+                  height: _isExtraSmall(context) ? 5.0 : 6.0,
                   decoration: BoxDecoration(
                     color: Colors.blue[400],
                     shape: BoxShape.circle,
                   ),
                 ),
-                SizedBox(width: 16.0),
+                SizedBox(width: _isExtraSmall(context) ? 14.0 : 16.0),
                 Expanded(
                   child: Text(
                     headerItems[index].title,
@@ -422,6 +583,7 @@ class _HomeState extends State<Home> {
     );
   }
 
+  // ENHANCED: Projects section with perfect responsive carousel management
   Widget _buildProjectsSection(BuildContext context) {
     return Column(
       children: [
@@ -431,7 +593,7 @@ class _HomeState extends State<Home> {
           padding: EdgeInsets.symmetric(horizontal: _getResponsivePadding(context)),
           child: ConstrainedBox(
             constraints: BoxConstraints(
-              maxWidth: _isDesktop(context) ? 1200.0 : double.infinity,
+              maxWidth: _isMobile(context) ? double.infinity : 1200.0,
             ),
             child: _buildSectionHeader(
               context: context,
@@ -441,29 +603,53 @@ class _HomeState extends State<Home> {
           ),
         ),
 
-        // Better spacing between header and carousels
-        SizedBox(height: _getResponsiveSpacing(context, mobile: 30.0, tablet: 40.0, desktop: 50.0)),
+        // Responsive spacing between header and carousels
+        SizedBox(
+          height: _getResponsiveSpacing(
+            context,
+            extraSmall: 24.0,
+            small: 28.0,
+            mobile: 32.0,
+            tablet: 40.0,
+            desktop: 50.0,
+            large: 60.0,
+            extraLarge: 70.0,
+          ),
+        ),
 
-        // App project section - FIXED: Simple container without complex height calculations
-        _buildSimpleCarouselContainer(
+        // App project section with enhanced responsive container
+        _buildResponsiveCarouselContainer(
           context: context,
           child: IOSAddApp(),
           semanticLabel: 'Mobile App Projects',
         ),
 
-        // Better spacing between carousels
-        SizedBox(height: _getResponsiveSpacing(context, mobile: 40.0, tablet: 50.0, desktop: 60.0)),
+        // Responsive spacing between carousels
+        SizedBox(
+          height: _getResponsiveSpacing(
+            context,
+            extraSmall: 32.0,
+            small: 36.0,
+            mobile: 40.0,
+            tablet: 50.0,
+            desktop: 60.0,
+            large: 70.0,
+            extraLarge: 80.0,
+          ),
+        ),
 
-        // Website project section - FIXED: Simple container without complex height calculations
-        _buildSimpleCarouselContainer(
+        // Website project section with enhanced responsive container
+        _buildResponsiveCarouselContainer(
           context: context,
-          child: WebsiteCarousel(),
+          child: EnhancedWebsiteCarousel(),
           semanticLabel: 'Website Projects',
         ),
       ],
     );
   }
-  Widget _buildSimpleCarouselContainer({
+
+  // ENHANCED: Responsive carousel container with perfect height and margin management
+  Widget _buildResponsiveCarouselContainer({
     required BuildContext context,
     required Widget child,
     required String semanticLabel,
@@ -472,25 +658,25 @@ class _HomeState extends State<Home> {
       label: semanticLabel,
       child: Container(
         width: double.infinity,
-        // FIXED: Use a simple, reasonable height instead of complex calculations
-        height: _isMobile(context) ? 500.0 : _isTablet(context) ? 600.0 : 700.0,
-        margin: EdgeInsets.symmetric(
-          horizontal: _isMobile(context) ? 0 : 20,
-        ),
+        height: _getCarouselHeight(context),
+        margin: _getCarouselMargin(context),
         decoration: BoxDecoration(
-          borderRadius: BorderRadius.circular(_isMobile(context) ? 0 : 16),
+          borderRadius: BorderRadius.circular(_getCarouselBorderRadius(context)),
           color: Colors.white,
-          boxShadow: _isMobile(context) ? null : [
+          boxShadow: _isMobile(context)
+              ? null
+              : [
             BoxShadow(
-              color: Colors.black.withOpacity(0.03),
-              blurRadius: 20,
-              offset: Offset(0, 4),
+              color: Colors.black.withOpacity(0.04),
+              blurRadius: 25,
+              offset: Offset(0, 6),
+              spreadRadius: 1,
             ),
           ],
         ),
         child: ClipRRect(
-          borderRadius: BorderRadius.circular(_isMobile(context) ? 0 : 16),
-          child: child, // The carousel content will fit within this container
+          borderRadius: BorderRadius.circular(_getCarouselBorderRadius(context)),
+          child: child,
         ),
       ),
     );
@@ -507,22 +693,48 @@ class _HomeState extends State<Home> {
           title,
           textAlign: TextAlign.center,
           style: TextStyle(
-            fontSize: _isMobile(context) ? 24.0 : _isTablet(context) ? 28.0 : 32.0,
+            fontSize: _isExtraSmall(context)
+                ? 20.0
+                : _isSmall(context)
+                ? 22.0
+                : _isMobile(context)
+                ? 24.0
+                : _isTablet(context)
+                ? 28.0
+                : _isDesktop(context)
+                ? 32.0
+                : _isLargeDesktop(context)
+                ? 36.0
+                : 40.0,
             fontWeight: FontWeight.w800,
             color: Colors.grey[800],
             letterSpacing: -0.5,
+            height: 1.2,
           ),
         ),
-        SizedBox(height: 12.0),
+        SizedBox(height: _isExtraSmall(context) ? 8.0 : 12.0),
         Container(
           constraints: BoxConstraints(
-            maxWidth: _isMobile(context) ? double.infinity : 600.0,
+            maxWidth: _isExtraSmall(context)
+                ? double.infinity
+                : _isMobile(context)
+                ? 400.0
+                : 600.0,
           ),
           child: Text(
             subtitle,
             textAlign: TextAlign.center,
             style: TextStyle(
-              fontSize: _getResponsiveFontSize(context, mobile: 14.0, tablet: 15.0, desktop: 16.0),
+              fontSize: _getResponsiveFontSize(
+                context,
+                extraSmall: 12.0,
+                small: 13.0,
+                mobile: 14.0,
+                tablet: 15.0,
+                desktop: 16.0,
+                large: 17.0,
+                extraLarge: 18.0,
+              ),
               color: Colors.grey[600],
               height: 1.5,
               letterSpacing: 0.2,
@@ -530,77 +742,6 @@ class _HomeState extends State<Home> {
           ),
         ),
       ],
-    );
-  }
-
-  Widget _buildResponsiveCarouselContainer({
-    required BuildContext context,
-    required Widget child,
-    required String semanticLabel,
-    required bool isIOSApp,
-  }) {
-    // Fixed: Better height calculation strategy
-    final screenHeight = MediaQuery.of(context).size.height;
-    final screenWidth = MediaQuery.of(context).size.width;
-
-    // Calculate optimal carousel height based on content type and screen size
-    double carouselHeight;
-
-    if (isIOSApp) {
-      // iOS App carousel - more compact
-      if (_isDesktop(context)) {
-        carouselHeight = screenHeight * 0.7;
-      } else if (_isTablet(context)) {
-        carouselHeight = screenHeight * 0.6;
-      } else {
-        carouselHeight = screenHeight * 0.5;
-      }
-      // Clamp iOS app heights
-      carouselHeight = carouselHeight.clamp(400.0, 700.0);
-    } else {
-      // Website carousel - can be larger
-      if (_isDesktop(context)) {
-        carouselHeight = screenHeight * 0.8;
-      } else if (_isTablet(context)) {
-        carouselHeight = screenHeight * 0.7;
-      } else {
-        carouselHeight = screenHeight * 0.6;
-      }
-      // Clamp website carousel heights
-      carouselHeight = carouselHeight.clamp(450.0, 800.0);
-    }
-
-    // Fixed: Better decoration and spacing
-    return Semantics(
-      label: semanticLabel,
-      child: Container(
-        height: carouselHeight,
-        width: double.infinity,
-        margin: EdgeInsets.symmetric(
-          horizontal: _isMobile(context) ? 0 : 20, // Add margin only on larger screens
-        ),
-        decoration: BoxDecoration(
-          borderRadius: BorderRadius.circular(_isMobile(context) ? 0 : 16),
-          boxShadow: _isMobile(context) ? null : [
-            BoxShadow(
-              color: Colors.black.withOpacity(0.03),
-              blurRadius: 20,
-              offset: Offset(0, 4),
-            ),
-          ],
-        ),
-        child: ClipRRect(
-          borderRadius: BorderRadius.circular(_isMobile(context) ? 0 : 16),
-          child: Container(
-            // Fixed: Add subtle background for better separation
-            decoration: BoxDecoration(
-              color: Colors.white,
-              borderRadius: BorderRadius.circular(_isMobile(context) ? 0 : 16),
-            ),
-            child: child,
-          ),
-        ),
-      ),
     );
   }
 }

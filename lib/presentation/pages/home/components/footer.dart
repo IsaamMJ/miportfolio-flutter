@@ -75,7 +75,7 @@ class Footer extends StatelessWidget {
                 mainAxisAlignment: MainAxisAlignment.spaceBetween,
                 children: [
                   Text(
-                    "© 2025 Mohamed Isaam M J. All rights reserved.",
+                    "© 2025 Mohamed Isaam M J.",
                     style: GoogleFonts.inter(
                       color: Colors.white.withOpacity(0.8), // Fixed: Made visible
                       fontSize: 14.0,
@@ -86,27 +86,21 @@ class Footer extends StatelessWidget {
                     mainAxisSize: MainAxisSize.min,
                     children: [
                       _buildSocialIcon(
-                        Icons.facebook,
-                        const Color(0xFF1877F2),
-                        'https://www.facebook.com/yourprofile',
-                      ),
-                      const SizedBox(width: 12.0),
-                      _buildSocialIcon(
                         Icons.send,
                         const Color(0xFF0088CC),
-                        'https://t.me/yourusername',
+                        'https://www.linkedin.com/in/isaammj/',
                       ),
                       const SizedBox(width: 12.0),
                       _buildSocialIcon(
                         Icons.camera_alt,
                         const Color(0xFFE4405F),
-                        'https://www.instagram.com/yourprofile',
+                        'http://instagram.com/mdisaam/',
                       ),
                       const SizedBox(width: 12.0),
                       _buildSocialIcon(
                         Icons.code,
                         Colors.white, // Fixed: Changed from light color to white
-                        'https://github.com/yourusername',
+                        'https://github.com/IsaamMJ',
                       ),
                     ],
                   ),

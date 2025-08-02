@@ -33,8 +33,8 @@ class PortfolioRepository {
           'Productivity',
           'Lifestyle'
         ],
-        appStoreUrl: 'https://apps.apple.com/app/skyfeed',
-        playStoreUrl: 'https://play.google.com/store/apps/details?id=com.skyfeed.app',
+        appStoreUrl: 'https://github.com/IsaamMJ/NewsXWeather-Flutter',
+        playStoreUrl: 'https://github.com/IsaamMJ/NewsXWeather-Flutter',
       ),
       AppData(
         id: 'calculator_002',
@@ -70,7 +70,7 @@ class PortfolioRepository {
     'E-Mart is a modern Flutter-based e-commerce app built with GetX and Clean Architecture. Browse products, manage your cart, and experience seamless checkouts—all in real-time with persistent state and a clean codebase.',
     imagePath: 'assets/emart.png',
     rating: 4.5,
-    downloads: '75K',
+    downloads: 'N/A',
     price: 0.0,
     features: [
     'Live Product API Integration',

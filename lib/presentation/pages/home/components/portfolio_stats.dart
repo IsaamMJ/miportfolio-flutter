@@ -7,7 +7,7 @@ import '../../../../utils/screen_helper.dart';
 
 final List<Stat> stats = [
   Stat(count: "1", text: "Apps\nDeployed", icon: Icons.mobile_friendly),
-  Stat(count: "3", text: "Happy\nClients", icon: Icons.sentiment_very_satisfied),
+  Stat(count: "2", text: "Happy\nClients", icon: Icons.sentiment_very_satisfied),
   Stat(count: "235", text: "Github \nCommits", icon: Icons.commit),
   Stat(count: "1+", text: "Years\nExperience", icon: Icons.timeline),
 ];
@@ -457,7 +457,7 @@ class _PortfolioStatsState extends State<PortfolioStats>
       case 1:
         return "${_animatedCounts[index]}";
       case 2:
-        return "${_animatedCounts[index]}";
+        return "${_animatedCounts[index]}+";
       case 3:
         return "${_animatedCounts[index]}+";
       default:
