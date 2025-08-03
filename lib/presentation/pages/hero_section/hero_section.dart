@@ -3,7 +3,8 @@ import 'package:google_fonts/google_fonts.dart';
 import 'package:url_launcher/url_launcher.dart';
 import 'dart:html' as html;
 
-import '../../../../utils/constants.dart';
+import '../../../utils/constants.dart';
+import '../../../utils/responsive_helper.dart'; // Import your ResponsiveHelper
 
 class HeroSection extends StatefulWidget {
   @override
@@ -31,44 +32,12 @@ class _HeroSectionState extends State<HeroSection>
   int _projectsCount = 0;
   int _yearsCount = 0;
 
-  // 📱 RESPONSIVE BREAKPOINTS (matching home page)
-  static const double mobileBreakpoint = 600.0;
-  static const double tabletBreakpoint = 1024.0;
-  static const double desktopBreakpoint = 1440.0;
-
-  // 📱 DEVICE TYPE DETECTION (matching home page)
-  bool _isMobile(BuildContext context) => MediaQuery.of(context).size.width < mobileBreakpoint;
-  bool _isTablet(BuildContext context) => MediaQuery.of(context).size.width >= mobileBreakpoint && MediaQuery.of(context).size.width < tabletBreakpoint;
-  bool _isDesktop(BuildContext context) => MediaQuery.of(context).size.width >= tabletBreakpoint;
-
-  // 📏 RESPONSIVE UTILITIES (matching home page)
-  double _getResponsiveFontSize(BuildContext context, {
-    double mobile = 14.0,
-    double tablet = 16.0,
-    double desktop = 18.0,
-  }) {
-    if (_isDesktop(context)) return desktop;
-    if (_isTablet(context)) return tablet;
-    return mobile;
-  }
-
-  double _getResponsiveSpacing(BuildContext context, {
-    double mobile = 20.0,
-    double tablet = 40.0,
-    double desktop = 60.0,
-  }) {
-    final screenWidth = MediaQuery.of(context).size.width;
-    if (screenWidth >= tabletBreakpoint) return desktop;
-    if (screenWidth >= mobileBreakpoint) return tablet;
-    return mobile;
-  }
-
-  // 🔧 IMPROVED HEIGHT CALCULATION - NO FIXED HEIGHTS
+  // 🔧 IMPROVED HEIGHT CALCULATION using ResponsiveHelper
   double _getMinHeroHeight(BuildContext context) {
     final screenHeight = MediaQuery.of(context).size.height;
-    if (_isMobile(context)) {
+    if (ResponsiveHelper.isMobile(context)) {
       return screenHeight * 0.75; // Reduced for mobile to prevent overflow
-    } else if (_isTablet(context)) {
+    } else if (ResponsiveHelper.isTablet(context)) {
       return screenHeight * 0.80;
     }
     return screenHeight * 0.85; // More conservative on desktop too
@@ -204,79 +173,110 @@ class _HeroSectionState extends State<HeroSection>
   }
 
   Widget _buildResponsiveLayout(BuildContext context) {
-    if (_isMobile(context)) {
+    if (ResponsiveHelper.isMobile(context)) {
       return _buildMobileLayout(context);
-    } else if (_isTablet(context)) {
+    } else if (ResponsiveHelper.isTablet(context)) {
       return _buildTabletLayout(context);
     } else {
       return _buildDesktopLayout(context);
     }
   }
 
-  // Desktop Layout - Side by side with more sophisticated design
+  // Desktop Layout - Centered content with better balance
   Widget _buildDesktopLayout(BuildContext context) {
-    return Container(
-      padding: EdgeInsets.symmetric(
-        vertical: _getResponsiveSpacing(context, mobile: 40.0, tablet: 50.0, desktop: 60.0),
-      ),
-      child: Row(
-        children: [
-          Expanded(
-            flex: 6,
-            child: Container(
-              padding: EdgeInsets.only(right: 40.0),
-              child: _buildTextContent(),
+    return Center(
+      child: Container(
+        constraints: BoxConstraints(maxWidth: 1200.0),
+        padding: EdgeInsets.symmetric(
+          horizontal: ResponsiveHelper.getResponsivePadding(context),
+          vertical: ResponsiveHelper.getResponsiveValue(
+            context,
+            mobile: 40.0,
+            tablet: 50.0,
+            desktop: 60.0,
+          ),
+        ),
+        child: Row(
+          mainAxisAlignment: MainAxisAlignment.center,
+          crossAxisAlignment: CrossAxisAlignment.center,
+          children: [
+            Expanded(
+              flex: 5,
+              child: Container(
+                padding: EdgeInsets.only(right: 30.0),
+                child: _buildTextContent(),
+              ),
             ),
-          ),
-          Expanded(
-            flex: 4,
-            child: _buildImage(),
-          ),
-        ],
+            Expanded(
+              flex: 4,
+              child: _buildImage(),
+            ),
+          ],
+        ),
       ),
     );
   }
 
-  // Tablet Layout - Similar to desktop but adjusted proportions
+  // Tablet Layout - Centered content with adjusted proportions
   Widget _buildTabletLayout(BuildContext context) {
-    return Container(
-      padding: EdgeInsets.symmetric(
-        vertical: _getResponsiveSpacing(context, mobile: 30.0, tablet: 40.0, desktop: 50.0),
-      ),
-      child: Row(
-        children: [
-          Expanded(
-            flex: 5,
-            child: Container(
-              padding: EdgeInsets.only(right: 30.0),
-              child: _buildTextContent(),
+    return Center(
+      child: Container(
+        constraints: BoxConstraints(maxWidth: 1000.0),
+        padding: EdgeInsets.symmetric(
+          horizontal: ResponsiveHelper.getResponsivePadding(context),
+          vertical: ResponsiveHelper.getResponsiveValue(
+            context,
+            mobile: 30.0,
+            tablet: 40.0,
+            desktop: 50.0,
+          ),
+        ),
+        child: Row(
+          mainAxisAlignment: MainAxisAlignment.center,
+          crossAxisAlignment: CrossAxisAlignment.center,
+          children: [
+            Expanded(
+              flex: 5,
+              child: Container(
+                padding: EdgeInsets.only(right: 24.0),
+                child: _buildTextContent(),
+              ),
             ),
-          ),
-          Expanded(
-            flex: 4,
-            child: _buildImage(),
-          ),
-        ],
+            Expanded(
+              flex: 4,
+              child: _buildImage(),
+            ),
+          ],
+        ),
       ),
     );
   }
 
-  // 🔧 IMPROVED MOBILE LAYOUT - No image on mobile
+  // 🔧 IMPROVED MOBILE LAYOUT - Centered content
   Widget _buildMobileLayout(BuildContext context) {
-    return SingleChildScrollView(
-      // 🔧 ADDED SCROLLABLE WRAPPER to prevent overflow
-      padding: EdgeInsets.symmetric(
-        vertical: _getResponsiveSpacing(context, mobile: 20.0, tablet: 30.0, desktop: 40.0),
-      ),
-      child: Column(
-        children: [
-          // Text content with flexible height - only content on mobile
-          Container(
-            width: double.infinity,
-            child: _buildTextContent(),
+    return Center(
+      child: Container(
+        constraints: BoxConstraints(maxWidth: 600.0),
+        child: SingleChildScrollView(
+          padding: EdgeInsets.symmetric(
+            horizontal: ResponsiveHelper.getResponsivePadding(context),
+            vertical: ResponsiveHelper.getResponsiveValue(
+              context,
+              mobile: 20.0,
+              tablet: 30.0,
+              desktop: 40.0,
+            ),
           ),
-          // 🔧 REMOVED IMAGE SECTION for mobile - image hidden on mobile screens
-        ],
+          child: Column(
+            children: [
+              // Text content with flexible height - only content on mobile
+              Container(
+                width: double.infinity,
+                child: _buildTextContent(),
+              ),
+            ],
+          ),
+        ),
       ),
     );
   }
@@ -288,7 +288,9 @@ class _HeroSectionState extends State<HeroSection>
       child: SlideTransition(
         position: _slideAnimation,
         child: Column(
-          mainAxisAlignment: _isMobile(context) ? MainAxisAlignment.start : MainAxisAlignment.center,
+          mainAxisAlignment: ResponsiveHelper.isMobile(context)
+              ? MainAxisAlignment.start
+              : MainAxisAlignment.center,
           crossAxisAlignment: CrossAxisAlignment.start,
           children: [
             // Professional badges with responsive sizing
@@ -297,12 +299,22 @@ class _HeroSectionState extends State<HeroSection>
               child: _buildProfessionalBadges(),
             ),
 
-            SizedBox(height: _getResponsiveSpacing(context, mobile: 16.0, tablet: 20.0, desktop: 24.0)),
+            SizedBox(height: ResponsiveHelper.getResponsiveValue(
+              context,
+              mobile: 16.0,
+              tablet: 20.0,
+              desktop: 24.0,
+            )),
 
             // Enhanced name with responsive typography
             _buildHeroTitle(),
 
-            SizedBox(height: _getResponsiveSpacing(context, mobile: 8.0, tablet: 10.0, desktop: 12.0)),
+            SizedBox(height: ResponsiveHelper.getResponsiveValue(
+              context,
+              mobile: 8.0,
+              tablet: 10.0,
+              desktop: 12.0,
+            )),
 
             // Enhanced professional title
             _buildSubtitle(),
@@ -312,23 +324,38 @@ class _HeroSectionState extends State<HeroSection>
             // Location and specialization
             _buildLocationInfo(),
 
-            SizedBox(height: _getResponsiveSpacing(context, mobile: 16.0, tablet: 20.0, desktop: 24.0)),
+            SizedBox(height: ResponsiveHelper.getResponsiveValue(
+              context,
+              mobile: 16.0,
+              tablet: 20.0,
+              desktop: 24.0,
+            )),
 
             // Achievement metrics
             _buildAchievementMetrics(),
 
-            SizedBox(height: _getResponsiveSpacing(context, mobile: 16.0, tablet: 20.0, desktop: 24.0)),
+            SizedBox(height: ResponsiveHelper.getResponsiveValue(
+              context,
+              mobile: 16.0,
+              tablet: 20.0,
+              desktop: 24.0,
+            )),
 
             // Enhanced call-to-action text
             _buildCallToActionText(),
 
-            SizedBox(height: _getResponsiveSpacing(context, mobile: 20.0, tablet: 24.0, desktop: 32.0)),
+            SizedBox(height: ResponsiveHelper.getResponsiveValue(
+              context,
+              mobile: 20.0,
+              tablet: 24.0,
+              desktop: 32.0,
+            )),
 
             // Enhanced buttons with responsive layout
             _buildActionButtons(),
 
             // 🔧 ADDED BOTTOM PADDING for mobile to prevent button cutoff
-            if (_isMobile(context))
+            if (ResponsiveHelper.isMobile(context))
               SizedBox(height: 20.0),
           ],
         ),
@@ -343,8 +370,8 @@ class _HeroSectionState extends State<HeroSection>
       children: [
         Container(
           padding: EdgeInsets.symmetric(
-              horizontal: _isMobile(context) ? 12.0 : 16.0,
-              vertical: _isMobile(context) ? 6.0 : 8.0
+            horizontal: ResponsiveHelper.isMobile(context) ? 12.0 : 16.0,
+            vertical: ResponsiveHelper.isMobile(context) ? 6.0 : 8.0,
           ),
           decoration: BoxDecoration(
             gradient: LinearGradient(
@@ -357,9 +384,9 @@ class _HeroSectionState extends State<HeroSection>
             mainAxisSize: MainAxisSize.min,
             children: [
               Icon(
-                  Icons.flutter_dash,
-                  color: Color(0xFF02569B),
-                  size: _isMobile(context) ? 14 : 16
+                Icons.flutter_dash,
+                color: Color(0xFF02569B),
+                size: ResponsiveHelper.isMobile(context) ? 14 : 16,
               ),
               SizedBox(width: 6),
               Text(
@@ -367,7 +394,7 @@ class _HeroSectionState extends State<HeroSection>
                 style: GoogleFonts.inter(
                   color: Color(0xFF02569B),
                   fontWeight: FontWeight.w700,
-                  fontSize: _isMobile(context) ? 11.0 : 13.0,
+                  fontSize: ResponsiveHelper.isMobile(context) ? 11.0 : 13.0,
                   letterSpacing: 0.8,
                 ),
               ),
@@ -376,8 +403,8 @@ class _HeroSectionState extends State<HeroSection>
         ),
         Container(
           padding: EdgeInsets.symmetric(
-              horizontal: _isMobile(context) ? 10.0 : 12.0,
-              vertical: _isMobile(context) ? 5.0 : 6.0
+            horizontal: ResponsiveHelper.isMobile(context) ? 10.0 : 12.0,
+            vertical: ResponsiveHelper.isMobile(context) ? 5.0 : 6.0,
           ),
           decoration: BoxDecoration(
             color: Colors.green.withOpacity(0.1),
@@ -388,8 +415,8 @@ class _HeroSectionState extends State<HeroSection>
             mainAxisSize: MainAxisSize.min,
             children: [
               Container(
-                width: _isMobile(context) ? 6 : 8,
-                height: _isMobile(context) ? 6 : 8,
+                width: ResponsiveHelper.isMobile(context) ? 6 : 8,
+                height: ResponsiveHelper.isMobile(context) ? 6 : 8,
                 decoration: BoxDecoration(
                   color: Colors.green,
                   shape: BoxShape.circle,
@@ -401,7 +428,7 @@ class _HeroSectionState extends State<HeroSection>
                 style: GoogleFonts.inter(
                   color: Colors.green.shade700,
                   fontWeight: FontWeight.w600,
-                  fontSize: _isMobile(context) ? 10.0 : 12.0,
+                  fontSize: ResponsiveHelper.isMobile(context) ? 10.0 : 12.0,
                 ),
               ),
             ],
@@ -431,12 +458,12 @@ class _HeroSectionState extends State<HeroSection>
   }
 
   double _getHeroTitleSize() {
-    if (_isMobile(context)) {
+    if (ResponsiveHelper.isMobile(context)) {
       final screenWidth = MediaQuery.of(context).size.width;
       if (screenWidth < 360) return 26.0; // Very small screens - reduced
       if (screenWidth < 400) return 30.0; // Small screens - reduced
       return 34.0; // Regular mobile - reduced
-    } else if (_isTablet(context)) {
+    } else if (ResponsiveHelper.isTablet(context)) {
       return 40.0; // Reduced
     }
     return 46.0; // Desktop - reduced
@@ -447,7 +474,12 @@ class _HeroSectionState extends State<HeroSection>
       "Cross-Platform Mobile & Web Developer",
       style: GoogleFonts.inter(
         color: Colors.grey.shade600,
-        fontSize: _getResponsiveFontSize(context, mobile: 15.0, tablet: 17.0, desktop: 19.0),
+        fontSize: ResponsiveHelper.getResponsiveFontSize(
+          context,
+          mobile: 15.0,
+          tablet: 17.0,
+          desktop: 19.0,
+        ),
         height: 1.3,
         fontWeight: FontWeight.w500,
       ),
@@ -458,17 +490,22 @@ class _HeroSectionState extends State<HeroSection>
     return Row(
       children: [
         Icon(
-            Icons.location_on,
-            size: _isMobile(context) ? 14 : 16,
-            color: kPrimaryColor
+          Icons.location_on,
+          size: ResponsiveHelper.isMobile(context) ? 14 : 16,
+          color: kPrimaryColor,
         ),
         SizedBox(width: 4),
         Flexible(
           child: Text(
             "India • Flutter • iOS • Android • Web",
             style: GoogleFonts.inter(
-              color: _isMobile(context) ? kCaptionColor : kPrimaryColor,
-              fontSize: _getResponsiveFontSize(context, mobile: 12.0, tablet: 13.0, desktop: 14.0),
+              color: ResponsiveHelper.isMobile(context) ? kCaptionColor : kPrimaryColor,
+              fontSize: ResponsiveHelper.getResponsiveFontSize(
+                context,
+                mobile: 12.0,
+                tablet: 13.0,
+                desktop: 14.0,
+              ),
               fontWeight: FontWeight.w600,
             ),
             overflow: TextOverflow.ellipsis,
@@ -481,7 +518,7 @@ class _HeroSectionState extends State<HeroSection>
   // Achievement metrics widget with responsive design
   Widget _buildAchievementMetrics() {
     return Wrap(
-      spacing: _isMobile(context) ? 20.0 : 32.0,
+      spacing: ResponsiveHelper.isMobile(context) ? 20.0 : 32.0,
       runSpacing: 10.0,
       children: [
         _buildMetric("$_projectsCount+", "Projects", Icons.apps),
@@ -499,16 +536,21 @@ class _HeroSectionState extends State<HeroSection>
           mainAxisSize: MainAxisSize.min,
           children: [
             Icon(
-                icon,
-                size: _isMobile(context) ? 14 : 16,
-                color: kPrimaryColor
+              icon,
+              size: ResponsiveHelper.isMobile(context) ? 14 : 16,
+              color: kPrimaryColor,
             ),
             SizedBox(width: 4),
             Text(
               value,
               style: GoogleFonts.inter(
                 color: Colors.black87,
-                fontSize: _getResponsiveFontSize(context, mobile: 15.0, tablet: 16.0, desktop: 17.0),
+                fontSize: ResponsiveHelper.getResponsiveFontSize(
+                  context,
+                  mobile: 15.0,
+                  tablet: 16.0,
+                  desktop: 17.0,
+                ),
                 fontWeight: FontWeight.w700,
               ),
             ),
@@ -519,7 +561,12 @@ class _HeroSectionState extends State<HeroSection>
           label,
           style: GoogleFonts.inter(
             color: kCaptionColor,
-            fontSize: _getResponsiveFontSize(context, mobile: 10.0, tablet: 11.0, desktop: 12.0),
+            fontSize: ResponsiveHelper.getResponsiveFontSize(
+              context,
+              mobile: 10.0,
+              tablet: 11.0,
+              desktop: 12.0,
+            ),
             fontWeight: FontWeight.w500,
           ),
         ),
@@ -535,7 +582,12 @@ class _HeroSectionState extends State<HeroSection>
           text: TextSpan(
             style: GoogleFonts.inter(
               color: kCaptionColor,
-              fontSize: _getResponsiveFontSize(context, mobile: 13.0, tablet: 14.0, desktop: 15.0),
+              fontSize: ResponsiveHelper.getResponsiveFontSize(
+                context,
+                mobile: 13.0,
+                tablet: 14.0,
+                desktop: 15.0,
+              ),
               height: 1.5,
             ),
             children: [
@@ -551,7 +603,7 @@ class _HeroSectionState extends State<HeroSection>
             ],
           ),
         ),
-        SizedBox(height: 6.0), // Reduced spacing
+        SizedBox(height: 6.0),
         MouseRegion(
           cursor: SystemMouseCursors.click,
           onEnter: (_) => setState(() => _isProjectLinkHovered = true),
@@ -578,7 +630,12 @@ class _HeroSectionState extends State<HeroSection>
                       style: GoogleFonts.inter(
                         height: 1.5,
                         color: _isProjectLinkHovered ? kPrimaryColor : Colors.black87,
-                        fontSize: _getResponsiveFontSize(context, mobile: 13.0, tablet: 14.0, desktop: 15.0),
+                        fontSize: ResponsiveHelper.getResponsiveFontSize(
+                          context,
+                          mobile: 13.0,
+                          tablet: 14.0,
+                          desktop: 15.0,
+                        ),
                         fontWeight: FontWeight.w600,
                         decoration: _isProjectLinkHovered ? TextDecoration.underline : null,
                       ),
@@ -587,7 +644,7 @@ class _HeroSectionState extends State<HeroSection>
                   SizedBox(width: 4),
                   Icon(
                     Icons.arrow_forward,
-                    size: _isMobile(context) ? 14 : 16,
+                    size: ResponsiveHelper.isMobile(context) ? 14 : 16,
                     color: _isProjectLinkHovered ? kPrimaryColor : Colors.black87,
                   ),
                 ],
@@ -599,7 +656,7 @@ class _HeroSectionState extends State<HeroSection>
     );
   }
 
-  // 🔧 IMPROVED ACTION BUTTONS with better spacing
+  // 🔧 IMPROVED ACTION BUTTONS with better spacing using ResponsiveHelper
   Widget _buildActionButtons() {
     final buttons = [
       _buildAnimatedButton(
@@ -611,10 +668,9 @@ class _HeroSectionState extends State<HeroSection>
           if (await canLaunchUrl(url)) {
             await launchUrl(
               url,
-              mode: LaunchMode.externalApplication, // Opens in new tab/browser
+              mode: LaunchMode.externalApplication,
             );
           } else {
-            // Handle error - could show a snackbar or dialog
             print('Could not launch $url');
           }
         },
@@ -629,10 +685,9 @@ class _HeroSectionState extends State<HeroSection>
           if (await canLaunchUrl(url)) {
             await launchUrl(
               url,
-              mode: LaunchMode.externalApplication, // Opens in new tab/browser
+              mode: LaunchMode.externalApplication,
             );
           } else {
-            // Handle error - could show a snackbar or dialog
             print('Could not launch $url');
           }
         },
@@ -641,12 +696,12 @@ class _HeroSectionState extends State<HeroSection>
       ),
     ];
 
-    if (_isMobile(context)) {
+    if (ResponsiveHelper.isMobile(context)) {
       return Column(
         crossAxisAlignment: CrossAxisAlignment.stretch,
         children: [
           buttons[0],
-          SizedBox(height: 10.0), // Reduced spacing
+          SizedBox(height: 10.0),
           buttons[1],
         ],
       );
@@ -659,7 +714,7 @@ class _HeroSectionState extends State<HeroSection>
     }
   }
 
-  // 🔧 IMPROVED BUTTON with better sizing
+  // 🔧 IMPROVED BUTTON with ResponsiveHelper
   Widget _buildAnimatedButton({
     required String text,
     required bool isHovered,
@@ -668,10 +723,15 @@ class _HeroSectionState extends State<HeroSection>
     required IconData icon,
     bool isSecondary = false,
   }) {
-    final buttonHeight = _isMobile(context) ? 48.0 : 52.0; // Slightly reduced
-    final horizontalPadding = _isMobile(context) ? 18.0 : 22.0; // Slightly reduced
-    final fontSize = _getResponsiveFontSize(context, mobile: 11.0, tablet: 12.0, desktop: 13.0);
-    final iconSize = _isMobile(context) ? 15.0 : 17.0; // Slightly reduced
+    final buttonHeight = ResponsiveHelper.isMobile(context) ? 48.0 : 52.0;
+    final horizontalPadding = ResponsiveHelper.isMobile(context) ? 18.0 : 22.0;
+    final fontSize = ResponsiveHelper.getResponsiveFontSize(
+      context,
+      mobile: 11.0,
+      tablet: 12.0,
+      desktop: 13.0,
+    );
+    final iconSize = ResponsiveHelper.isMobile(context) ? 15.0 : 17.0;
 
     return MouseRegion(
       cursor: SystemMouseCursors.click,
@@ -718,7 +778,9 @@ class _HeroSectionState extends State<HeroSection>
             child: Padding(
               padding: EdgeInsets.symmetric(horizontal: horizontalPadding),
               child: Row(
-                mainAxisSize: _isMobile(context) ? MainAxisSize.max : MainAxisSize.min,
+                mainAxisSize: ResponsiveHelper.isMobile(context)
+                    ? MainAxisSize.max
+                    : MainAxisSize.min,
                 mainAxisAlignment: MainAxisAlignment.center,
                 children: [
                   Icon(
@@ -749,15 +811,15 @@ class _HeroSectionState extends State<HeroSection>
     );
   }
 
-  // 🔧 IMPROVED IMAGE with better constraints
+  // 🔧 IMPROVED IMAGE with ResponsiveHelper
   Widget _buildImage() {
     return AnimatedBuilder(
       animation: _floatAnimation,
       builder: (context, child) {
         return Transform.translate(
-          offset: Offset(0, _floatAnimation.value * (_isMobile(context) ? 0.4 : 0.8)), // Reduced float effect
+          offset: Offset(0, _floatAnimation.value * (ResponsiveHelper.isMobile(context) ? 0.4 : 0.8)),
           child: Container(
-            padding: EdgeInsets.all(_isMobile(context) ? 12.0 : 16.0), // Reduced padding
+            padding: EdgeInsets.all(ResponsiveHelper.isMobile(context) ? 12.0 : 16.0),
             child: Stack(
               children: [
                 // Background glow effect
@@ -781,24 +843,28 @@ class _HeroSectionState extends State<HeroSection>
                   child: FadeTransition(
                     opacity: _fadeAnimation,
                     child: AspectRatio(
-                      aspectRatio: 1.0, // 🔧 ADDED ASPECT RATIO for consistent sizing
+                      aspectRatio: 1.0,
                       child: Container(
                         decoration: BoxDecoration(
-                          borderRadius: BorderRadius.circular(_isMobile(context) ? 18.0 : 22.0),
+                          borderRadius: BorderRadius.circular(
+                            ResponsiveHelper.isMobile(context) ? 18.0 : 22.0,
+                          ),
                           boxShadow: [
                             BoxShadow(
                               color: Colors.black.withOpacity(0.1),
-                              blurRadius: _isMobile(context) ? 12.0 : 16.0,
-                              offset: Offset(0, _isMobile(context) ? 4 : 6),
+                              blurRadius: ResponsiveHelper.isMobile(context) ? 12.0 : 16.0,
+                              offset: Offset(0, ResponsiveHelper.isMobile(context) ? 4 : 6),
                             ),
                           ],
                         ),
                         child: ClipRRect(
-                          borderRadius: BorderRadius.circular(_isMobile(context) ? 18.0 : 22.0),
+                          borderRadius: BorderRadius.circular(
+                            ResponsiveHelper.isMobile(context) ? 18.0 : 22.0,
+                          ),
                           child: Image.asset(
                             "assets/person.png",
-                            fit: BoxFit.cover, // 🔧 CHANGED to cover for better fitting
-                            alignment: Alignment.topCenter, // 🔧 FOCUS ON TOP PART TO PREVENT HEAD CROPPING
+                            fit: BoxFit.cover,
+                            alignment: Alignment.topCenter,
                           ),
                         ),
                       ),

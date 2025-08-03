@@ -4,8 +4,8 @@ import 'package:visibility_detector/visibility_detector.dart';
 
 import '../../../utils/globals.dart';
 import '../../../utils/section_keys.dart';
-import '../../../utils/responsive_helper.dart'; // Import your ResponsiveHelper
-import 'components/hero_section.dart';
+import '../../../utils/responsive_helper.dart';
+import '../hero_section/hero_section.dart';
 import 'components/cv_section.dart';
 import 'components/internship_section.dart';
 import 'components/footer.dart';
@@ -25,27 +25,23 @@ class _HomeState extends State<Home> {
   // ScrollController for the sticky header
   final ScrollController _scrollController = ScrollController();
 
-  // 📱 RESPONSIVE CAROUSEL HEIGHT CALCULATION using ResponsiveHelper only
+  // 📱 OPTIMIZED: More concise carousel height calculation
   double _getCarouselHeight(BuildContext context) {
-    // Use ResponsiveHelper to get responsive height percentages
-    double heightPercentage = ResponsiveHelper.getResponsiveValue<double>(
+    final heightPercentage = ResponsiveHelper.getResponsiveValue<double>(
       context,
-      mobile: 70.0,    // 70% for mobile
-      tablet: 75.0,    // 75% for tablets
-      desktop: 80.0,   // 80% for desktop
+      mobile: 70.0,
+      tablet: 75.0,
+      desktop: 80.0,
     );
 
-    double baseHeight = ResponsiveHelper.getHeightPercentage(context, heightPercentage);
-
-    // Get responsive min and max heights
-    double minHeight = ResponsiveHelper.getResponsiveValue<double>(
+    final baseHeight = ResponsiveHelper.getHeightPercentage(context, heightPercentage);
+    final minHeight = ResponsiveHelper.getResponsiveValue<double>(
       context,
       mobile: 400.0,
       tablet: 450.0,
       desktop: 500.0,
     );
-
-    double maxHeight = ResponsiveHelper.getResponsiveValue<double>(
+    final maxHeight = ResponsiveHelper.getResponsiveValue<double>(
       context,
       mobile: 700.0,
       tablet: 800.0,
@@ -55,21 +51,23 @@ class _HomeState extends State<Home> {
     return baseHeight.clamp(minHeight, maxHeight);
   }
 
+  // 📱 OPTIMIZED: Simplified margin calculation
   EdgeInsets _getCarouselMargin(BuildContext context) {
     return EdgeInsets.symmetric(
       horizontal: ResponsiveHelper.getResponsiveValue<double>(
         context,
-        mobile: ResponsiveHelper.isMobile(context) ? 8.0 : 0.0,
+        mobile: 8.0,
         tablet: 16.0,
         desktop: 24.0,
       ),
     );
   }
 
+  // 📱 OPTIMIZED: Simplified border radius calculation
   double _getCarouselBorderRadius(BuildContext context) {
     return ResponsiveHelper.getResponsiveValue<double>(
       context,
-      mobile: ResponsiveHelper.isMobile(context) ? 8.0 : 0.0,
+      mobile: 8.0,
       tablet: 12.0,
       desktop: 16.0,
     );
@@ -91,7 +89,7 @@ class _HomeState extends State<Home> {
           // 📌 STICKY HEADER
           EnhancedHeader(scrollController: _scrollController),
 
-          // 📜 SCROLLABLE CONTENT - Enhanced overflow handling
+          // 📜 SCROLLABLE CONTENT
           Expanded(
             child: SingleChildScrollView(
               controller: _scrollController,
@@ -99,7 +97,7 @@ class _HomeState extends State<Home> {
               child: Column(
                 crossAxisAlignment: CrossAxisAlignment.start,
                 children: [
-                  // 1. HERO/INTRO - First Impression
+                  // 1. HERO SECTION
                   _buildSection(
                     key: homeKey,
                     context: context,
@@ -115,6 +113,7 @@ class _HomeState extends State<Home> {
                     maxWidth: 1200.0,
                   ),
 
+                  // 2. SKILLS SECTION
                   _buildSection(
                     key: servicesKey,
                     context: context,
@@ -136,6 +135,7 @@ class _HomeState extends State<Home> {
                     ),
                   ),
 
+                  // 3. PORTFOLIO STATS
                   _buildSection(
                     context: context,
                     child: PortfolioStats(),
@@ -148,6 +148,7 @@ class _HomeState extends State<Home> {
                     ),
                   ),
 
+                  // 4. PROJECTS SECTION
                   SizedBox(
                     height: ResponsiveHelper.getResponsiveValue<double>(
                       context,
@@ -170,7 +171,7 @@ class _HomeState extends State<Home> {
                     ),
                   ),
 
-                  // Internship Section (PROFESSIONAL EXPERIENCE)
+                  // 5. INTERNSHIP SECTION
                   _buildSection(
                     key: testimonialsKey,
                     context: context,
@@ -178,7 +179,7 @@ class _HomeState extends State<Home> {
                       key: const Key('testimonials-section'),
                       onVisibilityChanged: (info) {
                         if (info.visibleFraction > 0.45) {
-                          Globals.activeSectionIndex.value = 3; // ✅ Fix
+                          Globals.activeSectionIndex.value = 3;
                         }
                       },
                       child: InternshipSection(),
@@ -192,7 +193,7 @@ class _HomeState extends State<Home> {
                     ),
                   ),
 
-// CvSection (MY PROCESS)
+                  // 6. CV SECTION
                   _buildSection(
                     key: blogsKey,
                     context: context,
@@ -200,7 +201,7 @@ class _HomeState extends State<Home> {
                       key: const Key('process-section'),
                       onVisibilityChanged: (info) {
                         if (info.visibleFraction > 0.45) {
-                          Globals.activeSectionIndex.value = 4; // ✅ Fix
+                          Globals.activeSectionIndex.value = 4;
                         }
                       },
                       child: CvSection(),
@@ -214,7 +215,7 @@ class _HomeState extends State<Home> {
                     ),
                   ),
 
-// Footer
+                  // 7. FOOTER
                   Container(
                     key: contactKey,
                     width: double.infinity,
@@ -222,14 +223,12 @@ class _HomeState extends State<Home> {
                       key: const Key('contact-section'),
                       onVisibilityChanged: (info) {
                         if (info.visibleFraction > 0.45) {
-                          Globals.activeSectionIndex.value = 5; // ✅ Fix
+                          Globals.activeSectionIndex.value = 5;
                         }
                       },
                       child: Footer(),
                     ),
                   ),
-
-
                 ],
               ),
             ),
@@ -239,7 +238,7 @@ class _HomeState extends State<Home> {
     );
   }
 
-  // ENHANCED: Centralized section builder using ResponsiveHelper
+  // 📱 ENHANCED: Centralized section builder with better organization
   Widget _buildSection({
     Key? key,
     required BuildContext context,
@@ -267,123 +266,52 @@ class _HomeState extends State<Home> {
     );
   }
 
+  // 📱 ENHANCED: More organized drawer with consistent ResponsiveHelper usage
   Widget _buildDrawer(BuildContext context) {
-    // Use ResponsiveHelper for drawer styling
-    final responsivePadding = ResponsiveHelper.getResponsivePadding(context).clamp(16.0, 28.0);
-    final responsiveFontSize = ResponsiveHelper.getResponsiveFontSize(
+    final padding = ResponsiveHelper.getResponsivePadding(context).clamp(16.0, 28.0);
+    final fontSize = ResponsiveHelper.getResponsiveFontSize(
       context,
       mobile: 14.0,
       tablet: 15.0,
       desktop: 16.0,
     );
+    final isMobile = ResponsiveHelper.isMobile(context);
 
     return Drawer(
       backgroundColor: Colors.white,
       elevation: 10.0,
-      width: ResponsiveHelper.isMobile(context)
+      width: isMobile
           ? ResponsiveHelper.getWidthPercentage(context, 85)
           : 320.0,
       child: SafeArea(
         child: Padding(
           padding: EdgeInsets.symmetric(
-            horizontal: responsivePadding,
-            vertical: ResponsiveHelper.isMobile(context) ? 16.0 : 20.0,
+            horizontal: padding,
+            vertical: isMobile ? 16.0 : 20.0,
           ),
           child: Column(
             crossAxisAlignment: CrossAxisAlignment.start,
             children: [
               // Drawer Header
-              Container(
-                padding: EdgeInsets.symmetric(
-                  vertical: ResponsiveHelper.isMobile(context) ? 16.0 : 20.0,
-                ),
-                child: Column(
-                  crossAxisAlignment: CrossAxisAlignment.start,
-                  children: [
-                    Container(
-                      padding: EdgeInsets.symmetric(
-                        horizontal: ResponsiveHelper.isMobile(context) ? 10.0 : 12.0,
-                        vertical: ResponsiveHelper.isMobile(context) ? 6.0 : 8.0,
-                      ),
-                      decoration: BoxDecoration(
-                        gradient: LinearGradient(
-                          colors: [Colors.blue[600]!, Colors.purple[600]!],
-                        ),
-                        borderRadius: BorderRadius.circular(12.0),
-                      ),
-                      child: Text(
-                        "M.",
-                        style: TextStyle(
-                          color: Colors.white,
-                          fontSize: responsiveFontSize + (ResponsiveHelper.isMobile(context) ? 6 : 8),
-                          fontWeight: FontWeight.w800,
-                        ),
-                      ),
-                    ),
-                    SizedBox(height: ResponsiveHelper.isMobile(context) ? 10.0 : 12.0),
-                    Text(
-                      "Navigation",
-                      style: TextStyle(
-                        fontSize: responsiveFontSize,
-                        fontWeight: FontWeight.w600,
-                        color: Colors.grey[700],
-                      ),
-                    ),
-                    Container(
-                      width: ResponsiveHelper.isMobile(context) ? 35.0 : 40.0,
-                      height: 3.0,
-                      margin: EdgeInsets.only(top: 8.0),
-                      decoration: BoxDecoration(
-                        gradient: LinearGradient(
-                          colors: [Colors.blue[600]!, Colors.purple[600]!],
-                        ),
-                        borderRadius: BorderRadius.circular(2.0),
-                      ),
-                    ),
-                  ],
-                ),
-              ),
+              _buildDrawerHeader(context, fontSize, isMobile),
 
               // Navigation Items
               Expanded(
                 child: ListView.separated(
                   itemBuilder: (BuildContext context, int index) {
                     return headerItems[index].isButton
-                        ? _buildDrawerButton(context, index)
-                        : _buildDrawerListItem(context, index);
+                        ? _buildDrawerButton(context, index, fontSize, isMobile)
+                        : _buildDrawerListItem(context, index, fontSize, isMobile);
                   },
                   separatorBuilder: (BuildContext context, int index) {
-                    return SizedBox(height: ResponsiveHelper.isMobile(context) ? 10.0 : 12.0);
+                    return SizedBox(height: isMobile ? 10.0 : 12.0);
                   },
                   itemCount: headerItems.length,
                 ),
               ),
 
               // Drawer Footer
-              Container(
-                padding: EdgeInsets.symmetric(
-                  vertical: ResponsiveHelper.isMobile(context) ? 12.0 : 16.0,
-                ),
-                child: Row(
-                  children: [
-                    Icon(
-                      Icons.touch_app,
-                      color: Colors.grey[400],
-                      size: ResponsiveHelper.isMobile(context) ? 14.0 : 16.0,
-                    ),
-                    SizedBox(width: 8.0),
-                    Flexible(
-                      child: Text(
-                        "Tap any item to navigate",
-                        style: TextStyle(
-                          fontSize: responsiveFontSize - 2,
-                          color: Colors.grey[500],
-                        ),
-                      ),
-                    ),
-                  ],
-                ),
-              ),
+              _buildDrawerFooter(context, fontSize, isMobile),
             ],
           ),
         ),
@@ -391,14 +319,86 @@ class _HomeState extends State<Home> {
     );
   }
 
-  Widget _buildDrawerButton(BuildContext context, int index) {
-    final responsiveFontSize = ResponsiveHelper.getResponsiveFontSize(
-      context,
-      mobile: 14.0,
-      tablet: 15.0,
-      desktop: 16.0,
+  // 📱 NEW: Separate drawer header widget for better organization
+  Widget _buildDrawerHeader(BuildContext context, double fontSize, bool isMobile) {
+    return Container(
+      padding: EdgeInsets.symmetric(vertical: isMobile ? 16.0 : 20.0),
+      child: Column(
+        crossAxisAlignment: CrossAxisAlignment.start,
+        children: [
+          Container(
+            padding: EdgeInsets.symmetric(
+              horizontal: isMobile ? 10.0 : 12.0,
+              vertical: isMobile ? 6.0 : 8.0,
+            ),
+            decoration: BoxDecoration(
+              gradient: LinearGradient(
+                colors: [Colors.blue[600]!, Colors.purple[600]!],
+              ),
+              borderRadius: BorderRadius.circular(12.0),
+            ),
+            child: Text(
+              "M.",
+              style: TextStyle(
+                color: Colors.white,
+                fontSize: fontSize + (isMobile ? 6 : 8),
+                fontWeight: FontWeight.w800,
+              ),
+            ),
+          ),
+          SizedBox(height: isMobile ? 10.0 : 12.0),
+          Text(
+            "Navigation",
+            style: TextStyle(
+              fontSize: fontSize,
+              fontWeight: FontWeight.w600,
+              color: Colors.grey[700],
+            ),
+          ),
+          Container(
+            width: isMobile ? 35.0 : 40.0,
+            height: 3.0,
+            margin: EdgeInsets.only(top: 8.0),
+            decoration: BoxDecoration(
+              gradient: LinearGradient(
+                colors: [Colors.blue[600]!, Colors.purple[600]!],
+              ),
+              borderRadius: BorderRadius.circular(2.0),
+            ),
+          ),
+        ],
+      ),
     );
+  }
 
+  // 📱 NEW: Separate drawer footer widget
+  Widget _buildDrawerFooter(BuildContext context, double fontSize, bool isMobile) {
+    return Container(
+      padding: EdgeInsets.symmetric(vertical: isMobile ? 12.0 : 16.0),
+      child: Row(
+        children: [
+          Icon(
+            Icons.touch_app,
+            color: Colors.grey[400],
+            size: isMobile ? 14.0 : 16.0,
+          ),
+          SizedBox(width: 8.0),
+          Flexible(
+            child: Text(
+              "Tap any item to navigate",
+              style: TextStyle(
+                fontSize: fontSize - 2,
+                color: Colors.grey[500],
+              ),
+            ),
+          ),
+        ],
+      ),
+    );
+  }
+
+  // 📱 OPTIMIZED: More concise drawer button
+  Widget _buildDrawerButton(BuildContext context, int index, double fontSize, bool isMobile) {
     return MouseRegion(
       cursor: SystemMouseCursors.click,
       child: Container(
@@ -425,23 +425,23 @@ class _HomeState extends State<Home> {
             },
             child: Padding(
               padding: EdgeInsets.symmetric(
-                horizontal: ResponsiveHelper.isMobile(context) ? 16.0 : 20.0,
-                vertical: ResponsiveHelper.isMobile(context) ? 14.0 : 16.0,
+                horizontal: isMobile ? 16.0 : 20.0,
+                vertical: isMobile ? 14.0 : 16.0,
               ),
               child: Row(
                 children: [
                   Icon(
                     Icons.work_outline,
                     color: Colors.white,
-                    size: responsiveFontSize + (ResponsiveHelper.isMobile(context) ? 2 : 4),
+                    size: fontSize + (isMobile ? 2 : 4),
                   ),
-                  SizedBox(width: ResponsiveHelper.isMobile(context) ? 10.0 : 12.0),
+                  SizedBox(width: isMobile ? 10.0 : 12.0),
                   Expanded(
                     child: Text(
                       headerItems[index].title,
                       style: TextStyle(
                         color: Colors.white,
-                        fontSize: responsiveFontSize,
+                        fontSize: fontSize,
                         fontWeight: FontWeight.w600,
                         letterSpacing: 0.3,
                       ),
@@ -450,7 +450,7 @@ class _HomeState extends State<Home> {
                   Icon(
                     Icons.arrow_forward,
                     color: Colors.white,
-                    size: responsiveFontSize + 2,
+                    size: fontSize + 2,
                   ),
                 ],
               ),
@@ -461,14 +461,8 @@ class _HomeState extends State<Home> {
     );
   }
 
-  Widget _buildDrawerListItem(BuildContext context, int index) {
-    final responsiveFontSize = ResponsiveHelper.getResponsiveFontSize(
-      context,
-      mobile: 14.0,
-      tablet: 15.0,
-      desktop: 16.0,
-    );
-
+  // 📱 OPTIMIZED: More concise drawer list item
+  Widget _buildDrawerListItem(BuildContext context, int index, double fontSize, bool isMobile) {
     return Container(
       margin: EdgeInsets.symmetric(vertical: 2.0),
       decoration: BoxDecoration(
@@ -486,34 +480,34 @@ class _HomeState extends State<Home> {
           },
           child: Padding(
             padding: EdgeInsets.symmetric(
-              horizontal: ResponsiveHelper.isMobile(context) ? 16.0 : 20.0,
-              vertical: ResponsiveHelper.isMobile(context) ? 14.0 : 16.0,
+              horizontal: isMobile ? 16.0 : 20.0,
+              vertical: isMobile ? 14.0 : 16.0,
             ),
             child: Row(
               children: [
                 Container(
-                  width: ResponsiveHelper.isMobile(context) ? 5.0 : 6.0,
-                  height: ResponsiveHelper.isMobile(context) ? 5.0 : 6.0,
+                  width: isMobile ? 5.0 : 6.0,
+                  height: isMobile ? 5.0 : 6.0,
                   decoration: BoxDecoration(
                     color: Colors.blue[400],
                     shape: BoxShape.circle,
                   ),
                 ),
-                SizedBox(width: ResponsiveHelper.isMobile(context) ? 14.0 : 16.0),
+                SizedBox(width: isMobile ? 14.0 : 16.0),
                 Expanded(
                   child: Text(
                     headerItems[index].title,
                     style: TextStyle(
                       color: Colors.grey[700],
                       fontWeight: FontWeight.w500,
-                      fontSize: responsiveFontSize,
+                      fontSize: fontSize,
                       letterSpacing: 0.2,
                     ),
                   ),
                 ),
                 Icon(
                   Icons.arrow_forward_ios,
-                  size: responsiveFontSize - 2,
+                  size: fontSize - 2,
                   color: Colors.grey[400],
                 ),
               ],
@@ -524,11 +518,11 @@ class _HomeState extends State<Home> {
     );
   }
 
-  // ENHANCED: Projects section using ResponsiveHelper
+  // 📱 ENHANCED: Projects section with consistent styling
   Widget _buildProjectsSection(BuildContext context) {
     return Column(
       children: [
-        // Section header with proper constraints
+        // Section header
         Container(
           width: double.infinity,
           padding: EdgeInsets.symmetric(
@@ -546,7 +540,7 @@ class _HomeState extends State<Home> {
           ),
         ),
 
-        // Responsive spacing between header and carousels
+        // Spacing
         SizedBox(
           height: ResponsiveHelper.getResponsiveValue<double>(
             context,
@@ -556,14 +550,14 @@ class _HomeState extends State<Home> {
           ),
         ),
 
-        // App project section with enhanced responsive container
+        // App projects
         _buildResponsiveCarouselContainer(
           context: context,
           child: IOSAddApp(),
           semanticLabel: 'Mobile App Projects',
         ),
 
-        // Responsive spacing between carousels
+        // Spacing between carousels
         SizedBox(
           height: ResponsiveHelper.getResponsiveValue<double>(
             context,
@@ -573,7 +567,7 @@ class _HomeState extends State<Home> {
           ),
         ),
 
-        // Website project section with enhanced responsive container
+        // Website projects
         _buildResponsiveCarouselContainer(
           context: context,
           child: EnhancedWebsiteCarousel(),
@@ -583,7 +577,7 @@ class _HomeState extends State<Home> {
     );
   }
 
-  // ENHANCED: Responsive carousel container using ResponsiveHelper
+  // 📱 OPTIMIZED: Cleaner responsive carousel container
   Widget _buildResponsiveCarouselContainer({
     required BuildContext context,
     required Widget child,
@@ -617,6 +611,7 @@ class _HomeState extends State<Home> {
     );
   }
 
+  // 📱 CONSISTENT: Section header with ResponsiveHelper
   Widget _buildSectionHeader({
     required BuildContext context,
     required String title,
