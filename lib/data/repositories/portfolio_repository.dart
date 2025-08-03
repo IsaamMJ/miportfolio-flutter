@@ -172,7 +172,7 @@ class PortfolioRepository {
         category: "Education",
         technologies: ["Wix", "CSS3"],
         themeColor: Colors.blue,
-        completionYear: "2024",
+        completionYear: "2021",
       ),
       WebsiteData(
         title: "Maintenance Portal",
@@ -180,11 +180,23 @@ class PortfolioRepository {
         description: "A responsive and secure Flutter web app designed for maintenance operations like managing work orders and viewing system notifications. Integrates with a Node.js backend and uses JWT-based authentication. Built with clean architecture and GetX state management.",
         imageAsset: "assets/mp.png",
         websiteUrl: "https://github.com/IsaamMJ/P4Flutter",
-        category: "Portfolio",
+        category: "ERP",
         technologies: ["Flutter", "Node.js", "JWT", "GetX", "Lottie", "GoogleFonts"],
         themeColor: Colors.purple,
-        completionYear: "2024",
+        completionYear: "2025",
       ),
+      WebsiteData(
+        title: "Zenith Bliss",
+        subtitle: "Smart Recruiting Software",
+        description: "Zenith Bliss is an intelligent recruiting platform developed to streamline and simplify the hiring process. Built using HTML, CSS, Bootstrap, and Firebase, it integrates advanced AI capabilities powered by Gemini 1.5 to assist in screening candidates, managing applications, and automating decision workflows. Deployed on Vercel, the system offers a seamless and responsive user experience for both recruiters and applicants.",
+        imageAsset: "assets/zenith_bliss.png",
+        websiteUrl: "https://github.com/IsaamMJ/SmartRecrutingSoftware",
+        category: "HRMS",
+        technologies: ["HTML", "CSS", "Bootstrap", "Firebase", "Vercel", "Gemini 1.5"],
+        themeColor: Colors.pink,
+        completionYear: "2023",
+      ),
+
     ];
   }
 }
