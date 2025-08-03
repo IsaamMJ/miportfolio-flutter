@@ -2,7 +2,7 @@
 import 'package:flutter/material.dart';
 import 'package:google_fonts/google_fonts.dart';
 import '../../../../data/models/app_data.dart';
-import '../../../../data/repositories/portfolio_repository.dart';
+import '../../../../data/repositories/portfolio_repository_impl.dart';
 import '../../../../presentation/widgets/ios_app_ad_widget.dart';
 import '../../../../utils/constants.dart';
 import '../../../../utils/screen_helper.dart';

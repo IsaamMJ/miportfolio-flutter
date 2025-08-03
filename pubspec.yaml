@@ -39,6 +39,7 @@ dependencies:
   flutter_feather_icons: ^2.0.0+1
   carousel_slider: ^5.1.1
   url_launcher: ^6.3.2
+  visibility_detector: ^0.4.0+2
 
 dev_dependencies:
   flutter_test:
