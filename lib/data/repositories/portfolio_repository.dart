@@ -190,7 +190,7 @@ class PortfolioRepository {
         subtitle: "Smart Recruiting Software",
         description: "Zenith Bliss is an intelligent recruiting platform developed to streamline and simplify the hiring process. Built using HTML, CSS, Bootstrap, and Firebase, it integrates advanced AI capabilities powered by Gemini 1.5 to assist in screening candidates, managing applications, and automating decision workflows. Deployed on Vercel, the system offers a seamless and responsive user experience for both recruiters and applicants.",
         imageAsset: "assets/zenith_bliss.png",
-        websiteUrl: "https://github.com/IsaamMJ/SmartRecrutingSoftware",
+        websiteUrl: "https://zenith-bliss.vercel.app/",
         category: "HRMS",
         technologies: ["HTML", "CSS", "Bootstrap", "Firebase", "Vercel", "Gemini 1.5"],
         themeColor: Colors.pink,
