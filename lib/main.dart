@@ -1,12 +1,24 @@
+import 'package:firebase_analytics/firebase_analytics.dart';
+import 'package:firebase_core/firebase_core.dart';
 import 'package:flutter/material.dart';
 import 'package:google_fonts/google_fonts.dart';
 import 'package:miportfolio/presentation/pages/home/home.dart';
 import 'package:miportfolio/utils/constants.dart';
 import 'package:responsive_framework/responsive_framework.dart';
 
-void main() {
+import 'firebase_options.dart';
+
+
+final FirebaseAnalytics analytics = FirebaseAnalytics.instance;
+
+void main() async {
+  WidgetsFlutterBinding.ensureInitialized(); // ✅ Important for async Firebase init
+  await Firebase.initializeApp(
+    options: DefaultFirebaseOptions.currentPlatform,
+  );
   runApp(MyApp());
 }
+
 
 class MyApp extends StatelessWidget {
   @override

@@ -1,0 +1,29 @@
+{
+  "project_info": {
+    "project_number": "600758725316",
+    "project_id": "isaamportfolio",
+    "storage_bucket": "isaamportfolio.firebasestorage.app"
+  },
+  "client": [
+    {
+      "client_info": {
+        "mobilesdk_app_id": "1:600758725316:android:26934ccbb3d90fabc13791",
+        "android_client_info": {
+          "package_name": "com.pearl.miportfolio"
+        }
+      },
+      "oauth_client": [],
+      "api_key": [
+        {
+          "current_key": "AIzaSyAq-cdETa0uimCU4_ChXzkAQpje0snyCyw"
+        }
+      ],
+      "services": {
+        "appinvite_service": {
+          "other_platform_oauth_client": []
+        }
+      }
+    }
+  ],
+  "configuration_version": "1"
+}

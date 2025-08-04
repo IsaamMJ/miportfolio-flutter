@@ -1,3 +1,4 @@
+import 'package:firebase_analytics/firebase_analytics.dart';
 import 'package:flutter/material.dart';
 import 'package:google_fonts/google_fonts.dart';
 import 'package:url_launcher/url_launcher.dart';
@@ -10,6 +11,7 @@ class HeroSection extends StatefulWidget {
   @override
   _HeroSectionState createState() => _HeroSectionState();
 }
+
 
 class _HeroSectionState extends State<HeroSection>
     with TickerProviderStateMixin {
@@ -46,6 +48,10 @@ class _HeroSectionState extends State<HeroSection>
   @override
   void initState() {
     super.initState();
+    FirebaseAnalytics.instance.logScreenView(
+      screenName: 'HeroSection',
+      screenClass: 'HeroSection',
+    );
 
     // Initialize animation controllers
     _fadeController = AnimationController(
@@ -664,16 +670,18 @@ class _HeroSectionState extends State<HeroSection>
         isHovered: _isGitHubHovered,
         onHover: (hovered) => setState(() => _isGitHubHovered = hovered),
         onPressed: () async {
+          await FirebaseAnalytics.instance.logEvent(
+            name: 'view_projects_clicked',
+            parameters: {'source': 'hero_section'},
+          );
           final Uri url = Uri.parse('https://github.com/IsaamMJ');
           if (await canLaunchUrl(url)) {
-            await launchUrl(
-              url,
-              mode: LaunchMode.externalApplication,
-            );
+            await launchUrl(url, mode: LaunchMode.externalApplication);
           } else {
             print('Could not launch $url');
           }
         },
+
         icon: Icons.work,
       ),
       _buildAnimatedButton(
@@ -681,16 +689,18 @@ class _HeroSectionState extends State<HeroSection>
         isHovered: _isResumeHovered,
         onHover: (hovered) => setState(() => _isResumeHovered = hovered),
         onPressed: () async {
-          final Uri url = Uri.parse('https://drive.google.com/drive/folders/1645fWZIewZvWyOpMQlTPBr6yPx0XQ8YI?usp=drive_link');
+          await FirebaseAnalytics.instance.logEvent(
+            name: 'resume_download_clicked',
+            parameters: {'source': 'hero_section'},
+          );
+          final Uri url = Uri.parse('https://drive.google.com/drive/folders/1645fWZIewZvWyOpMQlTPBr6yPx0XQ8YI?usp=drive_link'); // your resume link
           if (await canLaunchUrl(url)) {
-            await launchUrl(
-              url,
-              mode: LaunchMode.externalApplication,
-            );
+            await launchUrl(url, mode: LaunchMode.externalApplication);
           } else {
             print('Could not launch $url');
           }
         },
+
         icon: Icons.download,
         isSecondary: true,
       ),
