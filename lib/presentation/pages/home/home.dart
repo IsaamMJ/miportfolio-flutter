@@ -193,7 +193,28 @@ class _HomeState extends State<Home> {
                     ),
                   ),
 
-                  // 6. CV SECTION
+// 6. EDUCATION SECTION (NEW - Add this section)
+                  _buildSection(
+                    context: context,
+                    child: VisibilityDetector(
+                      key: const Key('education-section'),
+                      onVisibilityChanged: (info) {
+                        if (info.visibleFraction > 0.45) {
+                          Globals.activeSectionIndex.value = 4; // Update this index
+                        }
+                      },
+                      child: EduSection(),
+                    ),
+                    maxWidth: 1200.0,
+                    topSpacing: ResponsiveHelper.getResponsiveValue<double>(
+                      context,
+                      mobile: 40.0,
+                      tablet: 60.0,
+                      desktop: 80.0,
+                    ),
+                  ),
+
+// 7. CV SECTION (existing - update the index)
                   _buildSection(
                     key: blogsKey,
                     context: context,
@@ -201,7 +222,7 @@ class _HomeState extends State<Home> {
                       key: const Key('process-section'),
                       onVisibilityChanged: (info) {
                         if (info.visibleFraction > 0.45) {
-                          Globals.activeSectionIndex.value = 4;
+                          Globals.activeSectionIndex.value = 5; // Updated from 4 to 5
                         }
                       },
                       child: CvSection(),
@@ -215,7 +236,7 @@ class _HomeState extends State<Home> {
                     ),
                   ),
 
-                  // 7. FOOTER
+// 8. FOOTER (existing - update the index)
                   Container(
                     key: contactKey,
                     width: double.infinity,
@@ -223,7 +244,7 @@ class _HomeState extends State<Home> {
                       key: const Key('contact-section'),
                       onVisibilityChanged: (info) {
                         if (info.visibleFraction > 0.45) {
-                          Globals.activeSectionIndex.value = 5;
+                          Globals.activeSectionIndex.value = 6; // Updated from 5 to 6
                         }
                       },
                       child: Footer(),
