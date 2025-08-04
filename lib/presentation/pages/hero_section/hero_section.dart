@@ -670,37 +670,93 @@ class _HeroSectionState extends State<HeroSection>
         isHovered: _isGitHubHovered,
         onHover: (hovered) => setState(() => _isGitHubHovered = hovered),
         onPressed: () async {
+          // Enhanced analytics with more parameters
           await FirebaseAnalytics.instance.logEvent(
             name: 'view_projects_clicked',
-            parameters: {'source': 'hero_section'},
+            parameters: {
+              'source': 'hero_section',
+              'button_type': 'primary',
+              'device_type': ResponsiveHelper.isMobile(context) ? 'mobile' :
+              ResponsiveHelper.isTablet(context) ? 'tablet' : 'desktop',
+              'timestamp': DateTime.now().millisecondsSinceEpoch,
+              'user_agent': html.window.navigator.userAgent,
+              'screen_resolution': '${MediaQuery.of(context).size.width}x${MediaQuery.of(context).size.height}',
+            },
           );
+
+          // Optional: Track custom conversion event
+          await FirebaseAnalytics.instance.logEvent(
+            name: 'portfolio_engagement',
+            parameters: {
+              'engagement_type': 'projects_view',
+              'value': 1, // Can be used for conversion tracking
+            },
+          );
+
           final Uri url = Uri.parse('https://github.com/IsaamMJ');
           if (await canLaunchUrl(url)) {
             await launchUrl(url, mode: LaunchMode.externalApplication);
           } else {
             print('Could not launch $url');
+
+            // Track failed URL launches
+            await FirebaseAnalytics.instance.logEvent(
+              name: 'url_launch_failed',
+              parameters: {
+                'url': url.toString(),
+                'button': 'view_projects',
+              },
+            );
           }
         },
-
         icon: Icons.work,
       ),
+
       _buildAnimatedButton(
         text: "DOWNLOAD RESUME",
         isHovered: _isResumeHovered,
         onHover: (hovered) => setState(() => _isResumeHovered = hovered),
         onPressed: () async {
+          // Enhanced analytics with more parameters
           await FirebaseAnalytics.instance.logEvent(
             name: 'resume_download_clicked',
-            parameters: {'source': 'hero_section'},
+            parameters: {
+              'source': 'hero_section',
+              'button_type': 'secondary',
+              'device_type': ResponsiveHelper.isMobile(context) ? 'mobile' :
+              ResponsiveHelper.isTablet(context) ? 'tablet' : 'desktop',
+              'timestamp': DateTime.now().millisecondsSinceEpoch,
+              'user_agent': html.window.navigator.userAgent,
+              'screen_resolution': '${MediaQuery.of(context).size.width}x${MediaQuery.of(context).size.height}',
+            },
           );
-          final Uri url = Uri.parse('https://drive.google.com/drive/folders/1645fWZIewZvWyOpMQlTPBr6yPx0XQ8YI?usp=drive_link'); // your resume link
+
+          // Track resume download as conversion
+          await FirebaseAnalytics.instance.logEvent(
+            name: 'resume_download',
+            parameters: {
+              'content_type': 'resume',
+              'item_id': 'resume_2024',
+              'value': 1,
+            },
+          );
+
+          final Uri url = Uri.parse('https://drive.google.com/drive/folders/1645fWZIewZvWyOpMQlTPBr6yPx0XQ8YI?usp=drive_link');
           if (await canLaunchUrl(url)) {
             await launchUrl(url, mode: LaunchMode.externalApplication);
           } else {
             print('Could not launch $url');
+
+            // Track failed URL launches
+            await FirebaseAnalytics.instance.logEvent(
+              name: 'url_launch_failed',
+              parameters: {
+                'url': url.toString(),
+                'button': 'download_resume',
+              },
+            );
           }
         },
-
         icon: Icons.download,
         isSecondary: true,
       ),
