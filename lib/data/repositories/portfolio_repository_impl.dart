@@ -12,6 +12,59 @@ class PortfolioRepository {
   List<AppData> getApps() {
     return [
       AppData(
+        id: 'MediCapture_001',
+        name: 'MediCapture',
+        subtitle: 'Healthcare Image Session Manager',
+        description:
+        'Professional healthcare imaging solution for session-based photo capture workflows. Seamlessly capture, organize, and retrieve patient images with comprehensive metadata management and secure local storage.',
+        imagePath: 'assets/MediCapture.png',
+        rating: 5,
+        downloads: 'N/A',
+        price: 0.0,
+        features: [
+          'Session Management',
+          'SQLite Storage',
+          'Image Gallery',
+          'Search & Retrieve'
+        ],
+        categories: [
+          'Healthcare',
+          'Medical',
+          'Photography',
+          'Productivity'
+        ],
+        appStoreUrl: 'https://github.com/IsaamMJ/MediCapture',
+        playStoreUrl: 'https://github.com/IsaamMJ/MediCapture',
+      ),
+      AppData(
+        id: 'StopSpot_001',
+        name: 'StopSpot',
+        subtitle: 'Smart Transit Stop Manager',
+        description:
+        'Modern Flutter application for managing transit stops with intelligent search, persistent favorites, and real-time ETA calculations. Built with Clean Architecture and BLoC pattern for seamless user experience and professional code quality.',
+        imagePath: 'assets/StopSpot.png',
+        rating: 5,
+        downloads: 'N/A',
+        price: 0.0,
+        features: [
+          'Smart Search & Filter',
+          'Persistent Favorites',
+          'ETA Calculations',
+          'Dark/Light Theme',
+          'Clean Architecture',
+          'BLoC State Management'
+        ],
+        categories: [
+          'Transportation',
+          'Travel',
+          'Navigation',
+          'Productivity',
+          'Utilities'
+        ],
+        appStoreUrl: 'https://github.com/IsaamMJ/StopSpot-Flutter',
+        playStoreUrl: 'https://github.com/IsaamMJ/StopSpot-Flutter',
+      ),
+      AppData(
         id: 'skyfeed_001',
         name: 'SkyFeed',
         subtitle: 'Personalized News & Weather Forecasts',
@@ -19,7 +72,7 @@ class PortfolioRepository {
         'Experience the perfect blend of real-time weather data and curated news content. Our AI-powered platform delivers personalized insights that matter to you, when you need them most.',
         imagePath: 'assets/skyfeed.png',
         rating: 5,
-        downloads: 'N/A',
+        downloads: '10+',
         price: 0.0,
         features: [
           'Real-time Updates',
@@ -33,8 +86,8 @@ class PortfolioRepository {
           'Productivity',
           'Lifestyle'
         ],
-        appStoreUrl: 'https://github.com/IsaamMJ/NewsXWeather-Flutter',
-        playStoreUrl: 'https://github.com/IsaamMJ/NewsXWeather-Flutter',
+        appStoreUrl: 'https://play.google.com/store/apps/details?id=com.pearl.skyfeed&pcampaignid=web_share',
+        playStoreUrl: 'https://play.google.com/store/apps/details?id=com.pearl.skyfeed&pcampaignid=web_share',
       ),
       AppData(
         id: 'calculator_002',
